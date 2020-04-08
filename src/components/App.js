@@ -1,7 +1,7 @@
 import React from 'react';
-import logo from './logo.jpg';
-import './App.css';
-import ConnectionTestComponent from './components/ConnectionTestComponent'
+import logo from '../logo.jpg';
+import '../styles/App.css';
+import ConnectionTestComponent from './ConnectionTestComponent'
 
 export default class App extends React.Component {
   render() {
