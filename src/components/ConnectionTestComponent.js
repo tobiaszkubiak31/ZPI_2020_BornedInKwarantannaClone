@@ -14,8 +14,6 @@ export default class ConnectionTestComponent extends React.Component {
     }
     
 
-
-
     render() {
         return(
             <div>

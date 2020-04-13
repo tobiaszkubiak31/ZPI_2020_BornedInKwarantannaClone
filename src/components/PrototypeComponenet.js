@@ -4,8 +4,14 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import ResultComponent from './ResultComponent.js'
 
 export default class PrototypeComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {result : 0};
+      }
+
 
     render() {
         return (
@@ -54,7 +60,7 @@ export default class PrototypeComponent extends React.Component {
                     </form>
 
                     {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
-                    <p>Zmienna answer</p>
+                    <ResultComponent outputValue={this.state.result}/>
                     
                 </div>
             </Container>
