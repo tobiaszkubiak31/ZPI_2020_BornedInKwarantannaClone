@@ -21,7 +21,22 @@ export default class PrototypeComponent extends React.Component {
     }
 
     onButtonClick = e => {
+        if(this.validate()) {
+            // UZUPELNIC!!!
+            // tutaj obliczenie wartosci w zaleznosci od wybranego stanu, produktu i ceny
+            // i wpisanie wyniku do zmiennej answer, this.setState({answer: xD})
+            this.setState({errorMessage: ""})
+        } else {
+            //validacja sie nie powiodla
+            //aktualizacja stanu zmiennej na informujaca o bledzie
+            this.setState({errorMessage: "Niepoprawne dane wejsciowe!"})
+        }
+    }
 
+    validate() {
+        //UZUPELNIC!!!
+        //Funkcja validujaca dane wejsciowe
+        return true
     }
 
     render() {
@@ -86,7 +101,7 @@ export default class PrototypeComponent extends React.Component {
 
                     {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
                     <p>Zmienna answer</p>
-                    <p>{errorMessage}</p>
+                    <p>{this.state.errorMessage}</p>
                 </div>
             </Container>
         )
