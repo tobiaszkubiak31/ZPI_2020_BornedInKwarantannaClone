@@ -56,7 +56,7 @@ export default class PrototypeComponent extends React.Component {
                         <Grid container>
 
                             <Grid item xs>
-                                <FormControl>
+                                <FormControl variant="outlined" >
                                     <InputLabel>State</InputLabel>
                                     <Select
                                         native
