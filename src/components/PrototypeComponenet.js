@@ -12,11 +12,31 @@ export default class PrototypeComponent extends React.Component {
 
     state = {
         chosenState: "Alaska",
+        errorMessage: "",
         answer: ""
     }
 
     onChangeState = e => {
         this.setState({ chosenState: e.target.value})
+    }
+
+    onButtonClick = e => {
+        if(this.validate()) {
+            // UZUPELNIC!!!
+            // tutaj obliczenie wartosci w zaleznosci od wybranego stanu, produktu i ceny
+            // i wpisanie wyniku do zmiennej answer, this.setState({answer: xD})
+            this.setState({errorMessage: ""})
+        } else {
+            //validacja sie nie powiodla
+            //aktualizacja stanu zmiennej na informujaca o bledzie
+            this.setState({errorMessage: "Niepoprawne dane wejsciowe!"})
+        }
+    }
+
+    validate() {
+        //UZUPELNIC!!!
+        //Funkcja validujaca dane wejsciowe
+        return true
     }
 
     render() {
@@ -36,7 +56,7 @@ export default class PrototypeComponent extends React.Component {
                         <Grid container>
 
                             <Grid item xs>
-                                <FormControl>
+                                <FormControl variant="outlined" >
                                     <InputLabel>State</InputLabel>
                                     <Select
                                         native
@@ -70,8 +90,9 @@ export default class PrototypeComponent extends React.Component {
                                 <Button
                                     variant="contained"   
                                     color="primary" 
+                                    onClick={this.onButtonClick}
                                 >
-                                    Przycisk
+                                    Oblicz
                                 </Button>
                             </Grid>
 
@@ -80,7 +101,7 @@ export default class PrototypeComponent extends React.Component {
 
                     {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
                     <p>Zmienna answer</p>
-                    
+                    <p>{this.state.errorMessage}</p>
                 </div>
             </Container>
         )
