@@ -12,6 +12,7 @@ export default class PrototypeComponent extends React.Component {
 
     state = {
         chosenState: "Alaska",
+        errorMessage: "",
         answer: ""
     }
 
@@ -85,7 +86,7 @@ export default class PrototypeComponent extends React.Component {
 
                     {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
                     <p>Zmienna answer</p>
-                    
+                    <p>{errorMessage}</p>
                 </div>
             </Container>
         )
