@@ -3,11 +3,24 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 import Grid from '@material-ui/core/Grid';
 
 export default class PrototypeComponent extends React.Component {
 
+    state = {
+        chosenState: "Alaska",
+        answer: ""
+    }
+
+    onChangeState = e => {
+        this.setState({ chosenState: e.target.value})
+    }
+
     render() {
+
         return (
             //Container to nasz glowny pojemnik
             <Container component="main" fixed>
@@ -23,7 +36,19 @@ export default class PrototypeComponent extends React.Component {
                         <Grid container>
 
                             <Grid item xs>
-                                {/*Proponowane przeze mnie miejsce na rozwijane menu wyboru stanu.*/}
+                                <FormControl>
+                                    <InputLabel>State</InputLabel>
+                                    <Select
+                                        native
+                                        value={this.chosenState}
+                                        onChange={this.change}
+                                    >
+                                    <option aria-label="None" value="" />
+                                    <option value={'Alaska'}>Alaska</option>
+                                    <option value={'Kansas'}>Kansas</option>
+                                    <option value={'Mississippi'}>Mississippi</option>
+                                    </Select>
+                                </FormControl>
                             </Grid>
 
                             <Grid item xs>
