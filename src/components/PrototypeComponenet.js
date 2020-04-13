@@ -19,6 +19,10 @@ export default class PrototypeComponent extends React.Component {
         this.setState({ chosenState: e.target.value})
     }
 
+    onButtonClick = e => {
+
+    }
+
     render() {
 
         return (
@@ -70,8 +74,9 @@ export default class PrototypeComponent extends React.Component {
                                 <Button
                                     variant="contained"   
                                     color="primary" 
+                                    onClick={this.onButtonClick}
                                 >
-                                    Przycisk
+                                    Oblicz
                                 </Button>
                             </Grid>
 
