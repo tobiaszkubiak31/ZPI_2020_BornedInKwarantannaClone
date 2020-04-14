@@ -22,11 +22,10 @@ export default class PrototypeComponent extends React.Component {
         this.setState({ chosenState: e.target.value})
     }
 
-    
     onChangeProduct = e => {
         this.setState({ chosenProduct: e.target.value})
     }
-    
+
     onChangeInputField = e => {
         this.setState({ inputField: e.target.value})
     }
@@ -45,9 +44,15 @@ export default class PrototypeComponent extends React.Component {
     }
 
     validate() {
-        //UZUPELNIC!!!
-        //Funkcja validujaca dane wejsciowe
-        return true
+        let prize = parseFloat(this.state.inputField)
+        let isValid = false
+
+        if(!isNaN(prize) && prize > 0)
+        {
+            isValid = true
+        }
+
+        return isValid
     }
 
     render() {
