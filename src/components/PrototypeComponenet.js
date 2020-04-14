@@ -39,9 +39,15 @@ export default class PrototypeComponent extends React.Component {
     }
 
     validate() {
-        //UZUPELNIC!!!
-        //Funkcja validujaca dane wejsciowe
-        return true
+        let prize = parseFloat(this.state.inputField)
+        let isValid = true
+
+        if(isNaN(prize))
+        {
+            isValid = false
+        }
+
+        return isValid
     }
 
     render() {
