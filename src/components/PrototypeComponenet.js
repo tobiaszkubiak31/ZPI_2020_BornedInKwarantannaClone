@@ -40,11 +40,11 @@ export default class PrototypeComponent extends React.Component {
 
     validate() {
         let prize = parseFloat(this.state.inputField)
-        let isValid = true
+        let isValid = false
 
-        if(isNaN(prize))
+        if(!isNaN(prize) && prize > 0)
         {
-            isValid = false
+            isValid = true
         }
 
         return isValid
