@@ -12,12 +12,17 @@ export default class PrototypeComponent extends React.Component {
 
     state = {
         chosenState: "Alaska",
+        chosenProduct: "Onion",
         errorMessage: "",
         answer: ""
     }
 
     onChangeState = e => {
         this.setState({ chosenState: e.target.value})
+    }
+
+    onChangeProduct = e => {
+        this.setState({ chosenProduct: e.target.value})
     }
 
     onButtonClick = e => {
@@ -61,7 +66,7 @@ export default class PrototypeComponent extends React.Component {
                                     <Select
                                         native
                                         value={this.chosenState}
-                                        onChange={this.change}
+                                        onChange={this.changeState}
                                     >
                                     <option aria-label="None" value="" />
                                     <option value={'Alaska'}>Alaska</option>
@@ -76,8 +81,8 @@ export default class PrototypeComponent extends React.Component {
                                         <InputLabel>Product</InputLabel>
                                         <Select
                                             native
-                                            value={this.chosenState}
-                                            onChange={this.change}
+                                            value={this.chosenProduct}
+                                            onChange={this.changeProduct}
                                         >
                                         <option aria-label="None" value="" />
                                         <option value={'Onion'}>Onion</option>
