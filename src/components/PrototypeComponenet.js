@@ -72,7 +72,19 @@ export default class PrototypeComponent extends React.Component {
                             </Grid>
 
                             <Grid item xs>
-                                {/*Proponowane przeze mnie miejsce na rozwijane menu wyboru produktu.*/}
+                                <FormControl variant="outlined" >
+                                        <InputLabel>Product</InputLabel>
+                                        <Select
+                                            native
+                                            value={this.chosenState}
+                                            onChange={this.change}
+                                        >
+                                        <option aria-label="None" value="" />
+                                        <option value={'Onion'}>Onion</option>
+                                        <option value={'Banana'}>Banana</option>
+                                        <option value={'Potato'}>Potato</option>
+                                        </Select>
+                                    </FormControl>
                             </Grid>
 
                             <Grid item xs>
