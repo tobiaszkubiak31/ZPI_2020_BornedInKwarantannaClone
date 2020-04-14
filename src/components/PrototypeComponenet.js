@@ -12,12 +12,17 @@ export default class PrototypeComponent extends React.Component {
 
     state = {
         chosenState: "Alaska",
+        inputField: 0.00,
         errorMessage: "",
         answer: ""
     }
 
     onChangeState = e => {
         this.setState({ chosenState: e.target.value})
+    }
+
+    onChangeInputField = e => {
+        this.setState({ inputField: e.target.value})
     }
 
     onButtonClick = e => {
@@ -83,6 +88,8 @@ export default class PrototypeComponent extends React.Component {
                                     id="text"
                                     label="input"
                                     name="text"
+                                    value={this.inputField}
+                                    onChange={this.onChangeInputField}
                                 />
                             </Grid>
 
