@@ -96,9 +96,9 @@ export default class PrototypeComponent extends React.Component {
                                         onChange={this.onChangeProduct}
                                     >
                                     <option aria-label="None" value="" />
-                                    <option value={'Alaska'}>Alaska</option>
-                                    <option value={'Kansas'}>Kansas</option>
-                                    <option value={'Mississippi'}>Mississippi</option>
+                                    <option value={'Onion'}>Onion</option>
+                                    <option value={'Apple'}>Apple</option>
+                                    <option value={'Potato'}>Potato</option>
                                     </Select>
                                 </FormControl>
                             </Grid>
