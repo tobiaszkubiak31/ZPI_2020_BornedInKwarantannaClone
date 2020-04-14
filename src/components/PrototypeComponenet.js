@@ -12,6 +12,7 @@ export default class PrototypeComponent extends React.Component {
 
     state = {
         chosenState: "Alaska",
+        chosenProduct: "Onion",
         inputField: 0.00,
         errorMessage: "",
         answer: ""
@@ -19,6 +20,10 @@ export default class PrototypeComponent extends React.Component {
 
     onChangeState = e => {
         this.setState({ chosenState: e.target.value})
+    }
+
+    onChangeProduct = e => {
+        this.setState({ chosenProduct: e.target.value})
     }
 
     onChangeInputField = e => {
@@ -72,7 +77,7 @@ export default class PrototypeComponent extends React.Component {
                                     <Select
                                         native
                                         value={this.chosenState}
-                                        onChange={this.change}
+                                        onChange={this.onChangeState}
                                     >
                                     <option aria-label="None" value="" />
                                     <option value={'Alaska'}>Alaska</option>
@@ -82,8 +87,22 @@ export default class PrototypeComponent extends React.Component {
                                 </FormControl>
                             </Grid>
 
+
+
                             <Grid item xs>
-                                {/*Proponowane przeze mnie miejsce na rozwijane menu wyboru produktu.*/}
+                                <FormControl variant="outlined" >
+                                    <InputLabel>Product</InputLabel>
+                                    <Select
+                                        native
+                                        value={this.chosenProduct}
+                                        onChange={this.onChangeProduct}
+                                    >
+                                    <option aria-label="None" value="" />
+                                    <option value={'Onion'}>Onion</option>
+                                    <option value={'Banana'}>Banana</option>
+                                    <option value={'Apple'}>Apple</option>
+                                    </Select>
+                                </FormControl>
                             </Grid>
 
                             <Grid item xs>
