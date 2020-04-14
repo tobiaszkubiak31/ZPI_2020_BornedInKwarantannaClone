@@ -12,12 +12,22 @@ export default class PrototypeComponent extends React.Component {
 
     state = {
         chosenState: "Alaska",
+        chosenProduct: "Onion",
+        inputField: 0.00,
         errorMessage: "",
         answer: ""
     }
 
     onChangeState = e => {
         this.setState({ chosenState: e.target.value})
+    }
+
+    onChangeProduct = e => {
+        this.setState({ chosenProduct: e.target.value})
+    }
+
+    onChangeInputField = e => {
+        this.setState({ inputField: e.target.value})
     }
 
     onButtonClick = e => {
@@ -34,9 +44,15 @@ export default class PrototypeComponent extends React.Component {
     }
 
     validate() {
-        //UZUPELNIC!!!
-        //Funkcja validujaca dane wejsciowe
-        return true
+        let prize = parseFloat(this.state.inputField)
+        let isValid = false
+
+        if(!isNaN(prize) && prize > 0)
+        {
+            isValid = true
+        }
+
+        return isValid
     }
 
     render() {
@@ -61,7 +77,7 @@ export default class PrototypeComponent extends React.Component {
                                     <Select
                                         native
                                         value={this.chosenState}
-                                        onChange={this.change}
+                                        onChange={this.onChangeState}
                                     >
                                     <option aria-label="None" value="" />
                                     <option value={'Alaska'}>Alaska</option>
@@ -70,6 +86,23 @@ export default class PrototypeComponent extends React.Component {
                                     </Select>
                                 </FormControl>
                             </Grid>
+
+                            <Grid item xs>
+                                <FormControl variant="outlined" >
+                                    <InputLabel>State</InputLabel>
+                                    <Select
+                                        native
+                                        value={this.chosenProduct}
+                                        onChange={this.onChangeProduct}
+                                    >
+                                    <option aria-label="None" value="" />
+                                    <option value={'Onion'}>Onion</option>
+                                    <option value={'Apple'}>Apple</option>
+                                    <option value={'Potato'}>Potato</option>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
 
                             <Grid item xs>
                                 {/*Proponowane przeze mnie miejsce na rozwijane menu wyboru produktu.*/}
@@ -83,6 +116,8 @@ export default class PrototypeComponent extends React.Component {
                                     id="text"
                                     label="input"
                                     name="text"
+                                    value={this.inputField}
+                                    onChange={this.onChangeInputField}
                                 />
                             </Grid>
 
