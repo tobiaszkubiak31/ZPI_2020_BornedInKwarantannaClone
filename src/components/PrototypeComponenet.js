@@ -37,7 +37,7 @@ export default class PrototypeComponent extends React.Component {
       if (property[1].name === statee) {
         for (var element in property[1]) {
           if (element === product) {
-            return property[element];
+            return property[1][element];
           }
         }
       }
@@ -50,9 +50,12 @@ export default class PrototypeComponent extends React.Component {
     if (this.validate()) {
       let taxCoefficient =
         this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
-      let tax = this.state.inputField / taxCoefficient;
-      let prizeWithTax = this.state.inputField - tax;
-      this.setState({ errorMessage: prizeWithTax });
+      let prizeWithoutTax = this.state.inputField / taxCoefficient;
+      let tax = this.state.inputField - prizeWithoutTax;
+      this.setState({
+        errorMessage:
+          "Cena bez podatku: " + prizeWithoutTax + " Podatek wynosi: " + tax,
+      });
     } else {
       //validacja sie nie powiodla
       //aktualizacja stanu zmiennej na informujaca o bledzie
