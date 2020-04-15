@@ -32,7 +32,6 @@ export default class PrototypeComponent extends React.Component {
 
   getTaxCoef = (statee, product) => {
     var taxstates = taxstate;
-
     for (var property of Object.entries(taxstates)) {
       if (property[1].name === statee) {
         for (var element in property[1]) {
@@ -111,7 +110,7 @@ export default class PrototypeComponent extends React.Component {
 
               <Grid item xs>
                 <FormControl variant="outlined">
-                  <InputLabel>Prodct </InputLabel>
+                  <InputLabel>Product </InputLabel>
                   <Select
                     native
                     value={this.chosenProduct}
