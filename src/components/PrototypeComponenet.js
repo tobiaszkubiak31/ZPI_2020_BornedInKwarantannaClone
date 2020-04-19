@@ -141,6 +141,20 @@ export default class PrototypeComponent extends React.Component {
                 />
               </Grid>
 
+
+              <Grid item xs>
+                {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  id="buying_for"
+                  label="buying for"
+                  name="buying_for"
+                  value={this.inputField}
+                  onChange={this.onChangeInputField}
+                />
+              </Grid>
+
               <Grid item xs>
                 <Button
                   variant="contained"
