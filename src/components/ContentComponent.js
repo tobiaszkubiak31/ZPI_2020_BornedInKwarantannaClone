@@ -9,7 +9,7 @@ import Select from "@material-ui/core/Select";
 import Grid from "@material-ui/core/Grid";
 import { taxstate } from "./fakeData.js";
 
-export default class PrototypeComponent extends React.Component {
+export default class ContentComponent extends React.Component {
   state = {
     chosenState: "",
     chosenProduct: "",
@@ -83,19 +83,18 @@ export default class PrototypeComponent extends React.Component {
       //Container to nasz glowny pojemnik
       <Container component="main" fixed>
         <div>
-          {/*To jest jakiś tytuł.*/}
-          <Typography component="h1" variant="h5">
-            Prototyp aplikacji 1.0
-          </Typography>
-
           {/*Nasz formularz*/}
           <form noValidate>
             {/*Grid pozwala umiescic elementy obok siebie.*/}
-            <Grid container>
-              <Grid item xs>
+            <Grid spacing={6} container direction="column">
+              <Grid item xs={12}>
                 <FormControl variant="outlined">
-                  <InputLabel>State</InputLabel>
+                  <Typography variant="h4" component="h2">
+                    Choose state
+                  </Typography>
+                  <InputLabel></InputLabel>
                   <Select
+                    fullWidth="true"
                     native
                     value={this.chosenState}
                     onChange={this.onChangeState}
@@ -110,7 +109,10 @@ export default class PrototypeComponent extends React.Component {
 
               <Grid item xs>
                 <FormControl variant="outlined">
-                  <InputLabel>Product </InputLabel>
+                  <Typography variant="h4" component="h2">
+                    Choose product
+                  </Typography>
+                  <InputLabel></InputLabel>
                   <Select
                     native
                     value={this.chosenProduct}
@@ -125,23 +127,20 @@ export default class PrototypeComponent extends React.Component {
               </Grid>
 
               <Grid item xs>
-                {/*Proponowane przeze mnie miejsce na rozwijane menu wyboru produktu.*/}
-              </Grid>
-
-              <Grid item xs>
                 {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
+                <Typography variant="h4" component="h2">
+                  Final price
+                </Typography>
                 <TextField
                   variant="outlined"
-                  margin="normal"
                   id="text"
-                  label="input"
                   name="text"
                   value={this.inputField}
                   onChange={this.onChangeInputField}
                 />
               </Grid>
 
-              <Grid item xs>
+              <Grid item>
                 <Button
                   variant="contained"
                   color="primary"
@@ -161,4 +160,3 @@ export default class PrototypeComponent extends React.Component {
     );
   }
 }
-
