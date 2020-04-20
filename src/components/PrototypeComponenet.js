@@ -8,6 +8,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import Grid from "@material-ui/core/Grid";
 import { taxstate } from "./fakeData.js";
+import { validateNumber, validateChosenOptions } from '../utils/ValidatingFunctions';
 
 export default class PrototypeComponent extends React.Component {
   state = {
@@ -15,7 +16,7 @@ export default class PrototypeComponent extends React.Component {
     chosenProduct: "",
     inputField: 0.0,
     errorMessage: "",
-    answer: "",
+    answer: ""
   };
 
   onChangeState = (e) => {
@@ -46,14 +47,15 @@ export default class PrototypeComponent extends React.Component {
   };
 
   onButtonClick = (e) => {
-    if (this.validate()) {
+    if (validateNumber(this.state.inputField)
+        && validateChosenOptions(this.state.chosenState,this.state.chosenProduct)) {
       let taxCoefficient =
         this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
       let prizeWithoutTax = this.state.inputField / taxCoefficient;
       let tax = this.state.inputField - prizeWithoutTax;
       this.setState({
-        errorMessage:
-          "Cena bez podatku: " + prizeWithoutTax + " Podatek wynosi: " + tax,
+        answer:
+          "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax,
       });
     } else {
       //validacja sie nie powiodla
@@ -61,22 +63,6 @@ export default class PrototypeComponent extends React.Component {
       this.setState({ errorMessage: "Niepoprawne dane wejsciowe!" });
     }
   };
-
-  validate() {
-    let prize = parseFloat(this.state.inputField);
-    let isValid = false;
-
-    if (
-      !isNaN(prize) &&
-      prize > 0 &&
-      this.state.chosenProduct !== "" &&
-      this.state.chosenState !== ""
-    ) {
-      isValid = true;
-    }
-
-    return isValid;
-  }
 
   render() {
     return (
@@ -154,7 +140,7 @@ export default class PrototypeComponent extends React.Component {
           </form>
 
           {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
-          <p>Zmienna answer</p>
+          <p>{this.state.answer}</p>
           <p>{this.state.errorMessage}</p>
         </div>
       </Container>
