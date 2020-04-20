@@ -82,6 +82,7 @@ export default class PrototypeComponent extends React.Component {
                 <FormControl variant="outlined">
                   <InputLabel>State</InputLabel>
                   <Select
+                    data-testid='select-state'
                     native
                     value={this.chosenState}
                     onChange={this.onChangeState}
@@ -98,6 +99,7 @@ export default class PrototypeComponent extends React.Component {
                 <FormControl variant="outlined">
                   <InputLabel>Product </InputLabel>
                   <Select
+                    data-testid='select-product'
                     native
                     value={this.chosenProduct}
                     onChange={this.onChangeProduct}
@@ -117,6 +119,7 @@ export default class PrototypeComponent extends React.Component {
               <Grid item xs>
                 {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
                 <TextField
+                  data-testid='after-taxes-input'
                   variant="outlined"
                   margin="normal"
                   id="text"
@@ -129,6 +132,7 @@ export default class PrototypeComponent extends React.Component {
 
               <Grid item xs>
                 <Button
+                  data-testid='submit'
                   variant="contained"
                   color="primary"
                   onClick={this.onButtonClick}
