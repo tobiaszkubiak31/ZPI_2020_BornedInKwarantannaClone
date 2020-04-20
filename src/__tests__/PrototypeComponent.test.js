@@ -8,7 +8,7 @@ test('prototype component should render', async () => {
     const { getByText } = render(<PrototypeComponent/>)
     expect(getByText('Prototyp aplikacji 1.0')).toBeInTheDocument()
     expect(getByText('Oblicz')).toBeInTheDocument()
-}
+})
 
 test('validateNumber function should return false with string', async () => {
     const toTest = "abcdefg"
