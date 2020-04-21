@@ -15,6 +15,8 @@ export default class PrototypeComponent extends React.Component {
     chosenState: "",
     chosenProduct: "",
     inputField: 0.0,
+    buyingFor: 0.0,
+    margin: 0.0,
     errorMessage: "",
     answer: ""
   };
@@ -29,6 +31,10 @@ export default class PrototypeComponent extends React.Component {
 
   onChangeInputField = (e) => {
     this.setState({ inputField: e.target.value });
+  };
+
+  onChangeBuyingFor = (e) => {
+    this.setState({ buyingFor: e.target.value });
   };
 
   getTaxCoef = (statee, product) => {
@@ -51,11 +57,12 @@ export default class PrototypeComponent extends React.Component {
         && validateChosenOptions(this.state.chosenState,this.state.chosenProduct)) {
       let taxCoefficient =
         this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
-      let prizeWithoutTax = this.state.inputField / taxCoefficient;
-      let tax = this.state.inputField - prizeWithoutTax;
+      let prizeWithoutTax = (this.state.inputField / taxCoefficient).toFixed(2);
+      let tax =(this.state.inputField - prizeWithoutTax).toFixed(2);
+      let margin = (this.state.inputField / taxCoefficient).toFixed(2) - this.state.buyingFor;
       this.setState({
         answer:
-          "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax,
+          "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax + "marża: "+ margin,
       });
     } else {
       //validacja sie nie powiodla
@@ -127,6 +134,20 @@ export default class PrototypeComponent extends React.Component {
                   name="text"
                   value={this.inputField}
                   onChange={this.onChangeInputField}
+                />
+              </Grid>
+
+              <Grid item xs>
+                {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
+                <TextField
+                  data-testid='buying-for-input'
+                  variant="outlined"
+                  margin="normal"
+                  id="buying_for"
+                  label="buying_for"
+                  name="buying_for"
+                  value={this.buyingFor}
+                  onChange={this.onChangeBuyingFor}
                 />
               </Grid>
 
