@@ -1,4 +1,11 @@
 # Node.js with React
+
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- dev
+
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
@@ -6,14 +13,8 @@
       git checkout $(Build.SourceBranchName)
       git remote add heroku https://heroku:$(pat)@git.heroku.com/taxcalculatorzpi.git
       git push heroku $(Build.SourceBranchName)
-      
+
 # Build a Node.js project that uses React.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
-trigger:
-- dev
-
 pool:
   vmImage: 'ubuntu-latest'
 
