@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/App.css';
 import PrototypeComponent from './PrototypeComponenet';
+import Footer from './Footer'
 
 export default class App extends React.Component {
   render() {
@@ -10,6 +11,9 @@ export default class App extends React.Component {
         </header>
         {/*Tutaj jest nasz nowy element*/}
         <PrototypeComponent/>
+
+        <Footer/>
+
       </div>
     )
   }

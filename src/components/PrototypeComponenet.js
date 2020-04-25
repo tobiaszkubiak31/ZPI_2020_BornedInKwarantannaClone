@@ -7,10 +7,28 @@ import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import Grid from "@material-ui/core/Grid";
+import Paper from '@material-ui/core/Paper';
 import { taxstate } from "./fakeData.js";
 import { validateNumber, validateChosenOptions } from '../utils/ValidatingFunctions';
+import { withStyles } from '@material-ui/core/styles';
 
-export default class PrototypeComponent extends React.Component {
+const styles = theme => ({
+  grid: {
+    padding: theme.spacing(5)
+  },
+  gridElement: {
+    margin: '2%',
+    width: '90%'
+  },
+  paper: {
+    padding: theme.spacing(5,2,2,2),
+    //display: 'flex',
+    flexWrap: 'wrap',
+
+  },
+});
+
+class PrototypeComponent extends React.Component {
   state = {
     chosenState: "",
     chosenProduct: "",
@@ -62,7 +80,7 @@ export default class PrototypeComponent extends React.Component {
       let margin = (this.state.inputField / taxCoefficient).toFixed(2) - this.state.buyingFor;
       this.setState({
         answer:
-          "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax + "marża: "+ margin,
+          "Cena bez podatku: $" + prizeWithoutTax + "\nPodatek wynosi: $" + tax + "\nMarża: $"+ margin,
       });
     } else {
       //validacja sie nie powiodla
@@ -72,104 +90,103 @@ export default class PrototypeComponent extends React.Component {
   };
 
   render() {
+    const { classes } = this.props;
+
     return (
-      //Container to nasz glowny pojemnik
       <Container component="main" fixed>
         <div>
-          {/*To jest jakiś tytuł.*/}
-          <Typography component="h1" variant="h5">
-            Prototyp aplikacji 1.0
+          <Typography component="h1" variant="h4">
+            Tax Calculator
           </Typography>
 
           {/*Nasz formularz*/}
           <form noValidate>
-            {/*Grid pozwala umiescic elementy obok siebie.*/}
-            <Grid container>
-              <Grid item xs>
-                <FormControl variant="outlined">
-                  <InputLabel>State</InputLabel>
-                  <Select
-                    data-testid='select-state'
-                    native
-                    value={this.chosenState}
-                    onChange={this.onChangeState}
+            <Grid container >
+              
+              <Grid element xs='5' className={classes.grid}>
+                <Paper elevation={3} className={classes.paper}>
+                  <FormControl variant="outlined" className={classes.gridElement}>
+                    <InputLabel>State</InputLabel>
+                    <Select
+                      data-testid='select-state'
+                      native
+                      value={this.chosenState}
+                      onChange={this.onChangeState}
+                    >
+                      <option aria-label="None" value="" />
+                      <option value={taxstate[0].name}>{taxstate[0].name}</option>
+                      <option value={taxstate[1].name}>{taxstate[1].name}</option>
+                      <option value={taxstate[2].name}>{taxstate[2].name}</option>
+                    </Select>
+                  </FormControl>
+                
+                  <FormControl variant="outlined" className={classes.gridElement}>
+                    <InputLabel>Product </InputLabel>
+                    <Select
+                      data-testid='select-product'
+                      native
+                      value={this.chosenProduct}
+                      onChange={this.onChangeProduct}
+                    >
+                      <option aria-label="None" value="" />
+                      <option value={"base"}>Base</option>
+                      <option value={"groceries"}>groceries</option>
+                      <option value={"clothing"}>clothing</option>
+                    </Select>
+                  </FormControl>
+
+                  <TextField
+                    className={classes.gridElement}
+                    data-testid='after-taxes-input'
+                    variant="outlined"
+                    id="text"
+                    label="Customer price"
+                    name="text"
+                    value={this.inputField}
+                    onChange={this.onChangeInputField}
+                  />
+                
+                  <TextField
+                    className={classes.gridElement}
+                    data-testid='buying-for-input'
+                    variant="outlined"
+                    id="buying_for"
+                    label="Wholesale price"
+                    name="buying_for"
+                    value={this.buyingFor}
+                    onChange={this.onChangeBuyingFor}
+                  />
+
+                  <Button
+                    className={classes.gridElement}
+                    data-testid='submit'
+                    variant="contained"
+                    color="primary"
+                    onClick={this.onButtonClick}
                   >
-                    <option aria-label="None" value="" />
-                    <option value={taxstate[0].name}>{taxstate[0].name}</option>
-                    <option value={taxstate[1].name}>{taxstate[1].name}</option>
-                    <option value={taxstate[2].name}>{taxstate[2].name}</option>
-                  </Select>
-                </FormControl>
+                    Oblicz
+                  </Button>
+                </Paper>
               </Grid>
 
-              <Grid item xs>
-                <FormControl variant="outlined">
-                  <InputLabel>Product </InputLabel>
-                  <Select
-                    data-testid='select-product'
-                    native
-                    value={this.chosenProduct}
-                    onChange={this.onChangeProduct}
-                  >
-                    <option aria-label="None" value="" />
-                    <option value={"base"}>Base</option>
-                    <option value={"groceries"}>groceries</option>
-                    <option value={"clothing"}>clothing</option>
-                  </Select>
-                </FormControl>
+              <Grid element xs='5' className={classes.grid}>
+                <Typography component="h1" variant="h5">
+                  {/* pre zachowuje nowe linie, zmienia tez czcionke, 
+                  trzeba to w przyszlosci wywalic*/}
+                  <pre>
+                    <p>{this.state.answer}</p>
+                    <p>{this.state.errorMessage}</p>
+                  </pre>
+                </Typography>
               </Grid>
 
-              <Grid item xs>
-                {/*Proponowane przeze mnie miejsce na rozwijane menu wyboru produktu.*/}
-              </Grid>
-
-              <Grid item xs>
-                {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
-                <TextField
-                  data-testid='after-taxes-input'
-                  variant="outlined"
-                  margin="normal"
-                  id="text"
-                  label="input"
-                  name="text"
-                  value={this.inputField}
-                  onChange={this.onChangeInputField}
-                />
-              </Grid>
-
-              <Grid item xs>
-                {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
-                <TextField
-                  data-testid='buying-for-input'
-                  variant="outlined"
-                  margin="normal"
-                  id="buying_for"
-                  label="buying_for"
-                  name="buying_for"
-                  value={this.buyingFor}
-                  onChange={this.onChangeBuyingFor}
-                />
-              </Grid>
-
-              <Grid item xs>
-                <Button
-                  data-testid='submit'
-                  variant="contained"
-                  color="primary"
-                  onClick={this.onButtonClick}
-                >
-                  Oblicz
-                </Button>
-              </Grid>
             </Grid>
           </form>
-
-          {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
-          <p>{this.state.answer}</p>
-          <p>{this.state.errorMessage}</p>
+          
         </div>
       </Container>
     );
   }
 }
 
+export default withStyles(styles)(PrototypeComponent)
