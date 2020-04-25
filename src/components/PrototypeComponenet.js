@@ -59,7 +59,7 @@ export default class PrototypeComponent extends React.Component {
         this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
       let prizeWithoutTax = (this.state.inputField / taxCoefficient).toFixed(2);
       let tax =(this.state.inputField - prizeWithoutTax).toFixed(2);
-      let margin = (this.state.inputField / taxCoefficient).toFixed(2) - this.state.buyingFor;
+      let margin = ((this.state.inputField / taxCoefficient) - this.state.buyingFor).toFixed(2);
       this.setState({
         answer:
           "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax + "marża: "+ margin,
