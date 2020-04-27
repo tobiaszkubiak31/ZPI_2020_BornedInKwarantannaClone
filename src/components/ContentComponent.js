@@ -8,14 +8,17 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import Grid from "@material-ui/core/Grid";
 import { taxstate } from "./fakeData.js";
+import { validateNumber, validateChosenOptions } from '../utils/ValidatingFunctions';
 
 export default class ContentComponent extends React.Component {
   state = {
     chosenState: "",
     chosenProduct: "",
     inputField: 0.0,
+    buyingFor: 0.0,
+    margin: 0.0,
     errorMessage: "",
-    answer: "",
+    answer: ""
   };
 
   onChangeState = (e) => {
@@ -28,6 +31,10 @@ export default class ContentComponent extends React.Component {
 
   onChangeInputField = (e) => {
     this.setState({ inputField: e.target.value });
+  };
+
+  onChangeBuyingFor = (e) => {
+    this.setState({ buyingFor: e.target.value });
   };
 
   getTaxCoef = (statee, product) => {
@@ -46,14 +53,16 @@ export default class ContentComponent extends React.Component {
   };
 
   onButtonClick = (e) => {
-    if (this.validate()) {
+    if (validateNumber(this.state.inputField)
+        && validateChosenOptions(this.state.chosenState,this.state.chosenProduct)) {
       let taxCoefficient =
         this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
-      let prizeWithoutTax = this.state.inputField / taxCoefficient;
-      let tax = this.state.inputField - prizeWithoutTax;
+      let prizeWithoutTax = (this.state.inputField / taxCoefficient).toFixed(2);
+      let tax =(this.state.inputField - prizeWithoutTax).toFixed(2);
+      let margin = ((this.state.inputField / taxCoefficient) - this.state.buyingFor).toFixed(2);
       this.setState({
-        errorMessage:
-          "Cena bez podatku: " + prizeWithoutTax + " Podatek wynosi: " + tax,
+        answer:
+          "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax + "marża: "+ margin,
       });
     } else {
       //validacja sie nie powiodla
@@ -61,22 +70,6 @@ export default class ContentComponent extends React.Component {
       this.setState({ errorMessage: "Niepoprawne dane wejsciowe!" });
     }
   };
-
-  validate() {
-    let prize = parseFloat(this.state.inputField);
-    let isValid = false;
-
-    if (
-      !isNaN(prize) &&
-      prize > 0 &&
-      this.state.chosenProduct !== "" &&
-      this.state.chosenState !== ""
-    ) {
-      isValid = true;
-    }
-
-    return isValid;
-  }
 
   render() {
     return (
@@ -94,7 +87,11 @@ export default class ContentComponent extends React.Component {
                   </Typography>
                   <InputLabel></InputLabel>
                   <Select
+<<<<<<< HEAD:src/components/ContentComponent.js
                     fullWidth="true"
+=======
+                    data-testid='select-state'
+>>>>>>> dev:src/components/PrototypeComponenet.js
                     native
                     value={this.chosenState}
                     onChange={this.onChangeState}
@@ -114,6 +111,7 @@ export default class ContentComponent extends React.Component {
                   </Typography>
                   <InputLabel></InputLabel>
                   <Select
+                    data-testid='select-product'
                     native
                     value={this.chosenProduct}
                     onChange={this.onChangeProduct}
@@ -132,6 +130,7 @@ export default class ContentComponent extends React.Component {
                   Final price
                 </Typography>
                 <TextField
+                  data-testid='after-taxes-input'
                   variant="outlined"
                   id="text"
                   name="text"
@@ -140,8 +139,27 @@ export default class ContentComponent extends React.Component {
                 />
               </Grid>
 
+<<<<<<< HEAD:src/components/ContentComponent.js
               <Grid item>
+=======
+              <Grid item xs>
+                {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
+                <TextField
+                  data-testid='buying-for-input'
+                  variant="outlined"
+                  margin="normal"
+                  id="buying_for"
+                  label="buying_for"
+                  name="buying_for"
+                  value={this.buyingFor}
+                  onChange={this.onChangeBuyingFor}
+                />
+              </Grid>
+
+              <Grid item xs>
+>>>>>>> dev:src/components/PrototypeComponenet.js
                 <Button
+                  data-testid='submit'
                   variant="contained"
                   color="primary"
                   onClick={this.onButtonClick}
@@ -153,7 +171,7 @@ export default class ContentComponent extends React.Component {
           </form>
 
           {/*Proponowane przeze mnie miejsce na odpowiedź.*/}
-          <p>Zmienna answer</p>
+          <p>{this.state.answer}</p>
           <p>{this.state.errorMessage}</p>
         </div>
       </Container>
