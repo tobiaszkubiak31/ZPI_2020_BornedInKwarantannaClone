@@ -91,7 +91,6 @@ export default class ContentComponent extends React.Component {
                     fullWidth="true"
 =======
                     data-testid='select-state'
->>>>>>> dev:src/components/PrototypeComponenet.js
                     native
                     value={this.chosenState}
                     onChange={this.onChangeState}
