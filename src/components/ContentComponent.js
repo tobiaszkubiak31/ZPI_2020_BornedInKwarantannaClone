@@ -8,7 +8,10 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import Grid from "@material-ui/core/Grid";
 import { taxstate } from "./fakeData.js";
-import { validateNumber, validateChosenOptions } from '../utils/ValidatingFunctions';
+import {
+  validateNumber,
+  validateChosenOptions,
+} from "../utils/ValidatingFunctions";
 
 export default class ContentComponent extends React.Component {
   state = {
@@ -18,7 +21,7 @@ export default class ContentComponent extends React.Component {
     buyingFor: 0.0,
     margin: 0.0,
     errorMessage: "",
-    answer: ""
+    answer: "",
   };
 
   onChangeState = (e) => {
@@ -53,16 +56,26 @@ export default class ContentComponent extends React.Component {
   };
 
   onButtonClick = (e) => {
-    if (validateNumber(this.state.inputField)
-        && validateChosenOptions(this.state.chosenState,this.state.chosenProduct)) {
+    if (
+      validateNumber(this.state.inputField) &&
+      validateChosenOptions(this.state.chosenState, this.state.chosenProduct)
+    ) {
       let taxCoefficient =
         this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
       let prizeWithoutTax = (this.state.inputField / taxCoefficient).toFixed(2);
-      let tax =(this.state.inputField - prizeWithoutTax).toFixed(2);
-      let margin = ((this.state.inputField / taxCoefficient) - this.state.buyingFor).toFixed(2);
+      let tax = (this.state.inputField - prizeWithoutTax).toFixed(2);
+      let margin = (
+        this.state.inputField / taxCoefficient -
+        this.state.buyingFor
+      ).toFixed(2);
       this.setState({
         answer:
-          "Cena bez podatku: " + prizeWithoutTax + ", podatek wynosi: " + tax + "marża: "+ margin,
+          "Cena bez podatku: " +
+          prizeWithoutTax +
+          ", podatek wynosi: " +
+          tax +
+          "marża: " +
+          margin,
       });
     } else {
       //validacja sie nie powiodla
@@ -87,10 +100,7 @@ export default class ContentComponent extends React.Component {
                   </Typography>
                   <InputLabel></InputLabel>
                   <Select
-<<<<<<< HEAD:src/components/ContentComponent.js
-                    fullWidth="true"
-=======
-                    data-testid='select-state'
+                    data-testid="select-state"
                     native
                     value={this.chosenState}
                     onChange={this.onChangeState}
@@ -110,7 +120,7 @@ export default class ContentComponent extends React.Component {
                   </Typography>
                   <InputLabel></InputLabel>
                   <Select
-                    data-testid='select-product'
+                    data-testid="select-product"
                     native
                     value={this.chosenProduct}
                     onChange={this.onChangeProduct}
@@ -129,7 +139,7 @@ export default class ContentComponent extends React.Component {
                   Final price
                 </Typography>
                 <TextField
-                  data-testid='after-taxes-input'
+                  data-testid="after-taxes-input"
                   variant="outlined"
                   id="text"
                   name="text"
@@ -138,13 +148,10 @@ export default class ContentComponent extends React.Component {
                 />
               </Grid>
 
-<<<<<<< HEAD:src/components/ContentComponent.js
-              <Grid item>
-=======
               <Grid item xs>
                 {/*Proponowane przeze mnie miejsce do wpisywania ceny.*/}
                 <TextField
-                  data-testid='buying-for-input'
+                  data-testid="buying-for-input"
                   variant="outlined"
                   margin="normal"
                   id="buying_for"
@@ -156,9 +163,8 @@ export default class ContentComponent extends React.Component {
               </Grid>
 
               <Grid item xs>
->>>>>>> dev:src/components/PrototypeComponenet.js
                 <Button
-                  data-testid='submit'
+                  data-testid="submit"
                   variant="contained"
                   color="primary"
                   onClick={this.onButtonClick}
