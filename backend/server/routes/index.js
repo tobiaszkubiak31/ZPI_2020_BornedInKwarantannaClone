@@ -2,9 +2,15 @@ const express = require('express');
 
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
 
-    res.json({test: 'test'});
+    try {
+        let results = await db.all();
+        res.json(results);
+    } catch(e) {
+        console.log(e);
+        res.sendStatus(500);
+    }
 
 });
 
