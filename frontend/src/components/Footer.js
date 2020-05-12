@@ -8,13 +8,14 @@ const styles = theme => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    position: 'absolute',
+    position: 'relative',
     left: 0,
     bottom: 0,
     width: '100%'
   },
   footer: {
     padding: theme.spacing(2, 2),
+    bottom: 0,
     marginTop: 'auto',
     backgroundColor: blue[900],
   },

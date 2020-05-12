@@ -4,12 +4,16 @@ import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
 import Grid from "@material-ui/core/Grid";
 import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { taxstate } from "./fakeData.js";
-import { validateNumber, validateChosenOptions } from '../utils/ValidatingFunctions';
+import { validateNumber, validateProduct } from '../utils/ValidatingFunctions';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -22,38 +26,52 @@ const styles = theme => ({
   },
   paper: {
     padding: theme.spacing(5,2,2,2),
-    //display: 'flex',
     flexWrap: 'wrap',
 
   },
+  table: {
+    minWidth: 550,
+  }
 });
 
 class PrototypeComponent extends React.Component {
   state = {
-    chosenState: "",
     chosenProduct: "",
-    inputField: 0.0,
-    buyingFor: 0.0,
+    customerPrice: 0.0,
+    wholesalePrice: 0.0,
     margin: 0.0,
     errorMessage: "",
-    answer: ""
+    answers: [],
+    products: [
+      { title: 'base'},
+      { title: 'groceries'},
+      { title: 'clothing'}
+    ]
   };
 
   onChangeState = (e) => {
     this.setState({ chosenState: e.target.value });
   };
 
-  onChangeProduct = (e) => {
-    this.setState({ chosenProduct: e.target.value });
+  onChangeCustomerPrize = (e) => {
+    this.setState({ customerPrice: e.target.value });
   };
 
-  onChangeInputField = (e) => {
-    this.setState({ inputField: e.target.value });
+  onChangeWholesalePrice = (e) => {
+    this.setState({ wholesalePrice: e.target.value });
   };
 
-  onChangeBuyingFor = (e) => {
-    this.setState({ buyingFor: e.target.value });
-  };
+  formatColor = (number) => {
+    if(number > 0) {
+      return <p style={{color: 'green', margin: '0px'}}>{number}</p>
+    } else {
+      return <p style={{color: 'red', margin: '0px'}}>{number}</p>
+    }
+  }
+
+  createData = (state, tax, margin) => {
+    return { state, tax, margin };
+  }
 
   getTaxCoef = (statee, product) => {
     var taxstates = taxstate;
@@ -66,25 +84,35 @@ class PrototypeComponent extends React.Component {
         }
       }
     }
-
     this.setState({ errorMessage: "Blad podczas obliiczen podatku" });
   };
 
   onButtonClick = (e) => {
-    if (validateNumber(this.state.inputField)
-        && validateChosenOptions(this.state.chosenState,this.state.chosenProduct)) {
-      let taxCoefficient =
-        this.getTaxCoef(this.state.chosenState, this.state.chosenProduct) + 1;
-      let prizeWithoutTax = (this.state.inputField / taxCoefficient).toFixed(2);
-      let tax =(this.state.inputField - prizeWithoutTax).toFixed(2);
-      let margin = ((this.state.inputField / taxCoefficient) - this.state.buyingFor).toFixed(2);
+    if (validateNumber(this.state.customerPrice)
+        && validateProduct(this.state.chosenProduct)) {
+
+      const newAnswers = []
+
+      for (var property of Object.entries(taxstate)) {
+        let currentState = property[1].name;
+
+        let taxCoefficient = this.getTaxCoef(currentState, this.state.chosenProduct) + 1;
+        let prizeWithoutTax = (this.state.customerPrice / taxCoefficient).toFixed(2);
+        let tax =(this.state.customerPrice - prizeWithoutTax).toFixed(2);
+        let margin = ((this.state.customerPrice / taxCoefficient) - this.state.wholesalePrice).toFixed(2);
+
+        newAnswers.push(this.createData(currentState,tax,margin))
+      }
+
+      newAnswers.sort((a, b) => a.margin < b.margin ? 1 : -1)
+
       this.setState({
-        answer:
-          "Cena bez podatku: $" + prizeWithoutTax + "\nPodatek wynosi: $" + tax + "\nMarża: $"+ margin,
-      });
+        answers: newAnswers,
+      })
+
+      this.setState({ errorMessage: "" });
+
     } else {
-      //validacja sie nie powiodla
-      //aktualizacja stanu zmiennej na informujaca o bledzie
       this.setState({ errorMessage: "Niepoprawne dane wejsciowe!" });
     }
   };
@@ -103,58 +131,48 @@ class PrototypeComponent extends React.Component {
           <form noValidate>
             <Grid container >
               
-              <Grid element xs='5' className={classes.grid}>
+              <Grid item xs={6} className={classes.grid}>
                 <Paper elevation={3} className={classes.paper}>
                   <FormControl variant="outlined" className={classes.gridElement}>
-                    <InputLabel>State</InputLabel>
-                    <Select
-                      data-testid='select-state'
+                    <Autocomplete
+                      id="selectProduct"
                       native
-                      value={this.chosenState}
-                      onChange={this.onChangeState}
-                    >
-                      <option aria-label="None" value="" />
-                      <option value={taxstate[0].name}>{taxstate[0].name}</option>
-                      <option value={taxstate[1].name}>{taxstate[1].name}</option>
-                      <option value={taxstate[2].name}>{taxstate[2].name}</option>
-                    </Select>
-                  </FormControl>
-                
-                  <FormControl variant="outlined" className={classes.gridElement}>
-                    <InputLabel>Product </InputLabel>
-                    <Select
-                      data-testid='select-product'
-                      native
-                      value={this.chosenProduct}
-                      onChange={this.onChangeProduct}
-                    >
-                      <option aria-label="None" value="" />
-                      <option value={"base"}>Base</option>
-                      <option value={"groceries"}>groceries</option>
-                      <option value={"clothing"}>clothing</option>
-                    </Select>
+                      options={this.state.products} 
+
+                      inputValue={this.state.chosenProduct}
+                      onInputChange={(event, newInputValue) => {
+                        console.log(newInputValue)
+                        this.setState({chosenProduct: newInputValue})
+                      }}
+
+                      getOptionLabel={(option) => option.title}
+                      renderInput={(params) => 
+                        <TextField {...params} 
+                          label="Product" 
+                          variant="outlined" 
+                        />}
+                    />
                   </FormControl>
 
                   <TextField
                     className={classes.gridElement}
                     data-testid='after-taxes-input'
                     variant="outlined"
-                    id="text"
+                    id="customerPrice"
                     label="Customer price"
-                    name="text"
-                    value={this.inputField}
-                    onChange={this.onChangeInputField}
+                    value={this.customerPrice}
+                    onChange={this.onChangeCustomerPrize}
                   />
                 
                   <TextField
                     className={classes.gridElement}
                     data-testid='buying-for-input'
                     variant="outlined"
-                    id="buying_for"
+                    id="wholesalePrice"
                     label="Wholesale price"
-                    name="buying_for"
-                    value={this.buyingFor}
-                    onChange={this.onChangeBuyingFor}
+                    name="wholesalePrice"
+                    value={this.wholesalePrice}
+                    onChange={this.onChangeWholesalePrice}
                   />
 
                   <Button
@@ -169,15 +187,29 @@ class PrototypeComponent extends React.Component {
                 </Paper>
               </Grid>
 
-              <Grid element xs='5' className={classes.grid}>
-                <Typography component="h1" variant="h5">
-                  {/* pre zachowuje nowe linie, zmienia tez czcionke, 
-                  trzeba to w przyszlosci wywalic*/}
-                  <pre>
-                    <p>{this.state.answer}</p>
-                    <p>{this.state.errorMessage}</p>
-                  </pre>
-                </Typography>
+              <Grid item xs={6} className={classes.grid}>
+
+                <Table className={classes.table} size="small" aria-label="a dense table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>State</TableCell>
+                      <TableCell align="right">Tax</TableCell>
+                      <TableCell align="right">Marign</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.state.answers.map((row) => (
+                      <TableRow key={row.name + row.margin}>
+                        <TableCell component="th" scope="row">
+                          {row.state}
+                        </TableCell>
+                        <TableCell align="right">{row.tax}</TableCell>
+                        <TableCell align="right">{this.formatColor(row.margin)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                  
               </Grid>
 
             </Grid>
