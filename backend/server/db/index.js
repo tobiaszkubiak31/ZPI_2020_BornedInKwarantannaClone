@@ -1,10 +1,10 @@
 const mysql = require('mysql');
 
-const conn = mysql.createPool({
+const pool = mysql.createPool({
     connectionLimit: 10,
     password: 'password',
     user: 'user',
-    database: 'products',
+    database: 'tax_calculator',
     host: 'localhost',
     port: '3306'
 });
