@@ -1,9 +1,9 @@
-import axios from 'axios';
+//import axios from 'axios';
 
-const API_URL = 'http://localhost:8080'
+//const API_URL = 'http://localhost:8080'
 
 export async function getAllStates() {
-    const response = await axios.get(`${API_URL}/states`)
+    //const response = await axios.get(`${API_URL}/states`)
 
     const fakeResponse = [
         {
@@ -42,21 +42,21 @@ export async function getAllStates() {
 }
 
 export async function getAllProducts() {
-    const response = await axios.get(`${API_URL}/products`)
+    //const response = await axios.get(`${API_URL}/products`)
 
     const fakeResponse = [
         {
-            product: 'apple',
+            product: 'Apple',
             category: 'groceries',
             wholesalePrice: 0.24,
         },
         {
-            product: 'orange',
+            product: 'Orange',
             category: 'groceries',
             wholesalePrice: 0.35,
         },
         {
-            product: 'pineapple',
+            product: 'Pineapple',
             category: 'groceries',
             wholesalePrice: 0.78,
         },
