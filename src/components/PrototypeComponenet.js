@@ -12,9 +12,10 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { taxstate } from "./fakeData.js";
 import { validateNumber, validateProduct } from '../utils/ValidatingFunctions';
 import { withStyles } from '@material-ui/core/styles';
+import "../utils/service.js";
+import { getAllStates, getAllProducts } from "../utils/service.js";
 
 const styles = theme => ({
   grid: {
@@ -38,16 +39,26 @@ class PrototypeComponent extends React.Component {
   state = {
     chosenProduct: "",
     customerPrice: 0.0,
-    wholesalePrice: 0.0,
+    wholesalePrice: "",
     margin: 0.0,
     errorMessage: "",
     answers: [],
-    products: [
-      { title: 'base'},
-      { title: 'groceries'},
-      { title: 'clothing'}
-    ]
+    states: [],
+    products: []
   };
+
+  componentWillMount() {
+    getAllStates().then( (response) => {
+      this.setState({
+        states: response,
+      })
+    })
+    getAllProducts().then( (response) => {
+      this.setState({
+        products: response,
+      })
+    })
+  }
 
   onChangeState = (e) => {
     this.setState({ chosenState: e.target.value });
@@ -59,6 +70,11 @@ class PrototypeComponent extends React.Component {
 
   onChangeWholesalePrice = (e) => {
     this.setState({ wholesalePrice: e.target.value });
+  };
+
+  setDefaultWholeSalePrice = () =>{
+    let currentProduct = this.findProductByName(this.state.chosenProduct)
+    this.setState({ wholesalePrice: currentProduct.wholesalePrice,})
   };
 
   formatColor = (number) => {
@@ -73,19 +89,21 @@ class PrototypeComponent extends React.Component {
     return { state, tax, margin };
   }
 
-  getTaxCoef = (statee, product) => {
-    var taxstates = taxstate;
-    for (var property of Object.entries(taxstates)) {
-      if (property[1].name === statee) {
-        for (var element in property[1]) {
-          if (element === product) {
-            return property[1][element];
-          }
-        }
+  getTaxCoef = (state, product) => {
+    for (var property of Object.entries(state)) {
+      if(property[0] === product.category) {
+        return property[1];
       }
     }
-    this.setState({ errorMessage: "Blad podczas obliiczen podatku" });
   };
+
+  findProductByName(name) {
+    for(let product of this.state.products) {
+      if(product.product === name) {
+        return product
+      }
+    }
+  }
 
   onButtonClick = (e) => {
     if (validateNumber(this.state.customerPrice)
@@ -93,15 +111,19 @@ class PrototypeComponent extends React.Component {
 
       const newAnswers = []
 
-      for (var property of Object.entries(taxstate)) {
-        let currentState = property[1].name;
+      for (let currentState of this.state.states) {
+        let stateName = currentState.name;
+        let currentProduct = this.findProductByName(this.state.chosenProduct)
 
-        let taxCoefficient = this.getTaxCoef(currentState, this.state.chosenProduct) + 1;
+        let taxCoefficient = this.getTaxCoef(currentState, currentProduct) + 1;
         let prizeWithoutTax = (this.state.customerPrice / taxCoefficient).toFixed(2);
         let tax =(this.state.customerPrice - prizeWithoutTax).toFixed(2);
         let margin = ((this.state.customerPrice / taxCoefficient) - this.state.wholesalePrice).toFixed(2);
 
-        newAnswers.push(this.createData(currentState,tax,margin))
+        //Uwzgledniamy koszty logistyki
+        margin = margin - currentState.logistics
+
+        newAnswers.push(this.createData(stateName,tax,margin))
       }
 
       newAnswers.sort((a, b) => a.margin < b.margin ? 1 : -1)
@@ -138,14 +160,13 @@ class PrototypeComponent extends React.Component {
                       id="selectProduct"
                       native
                       options={this.state.products} 
-
                       inputValue={this.state.chosenProduct}
-                      onInputChange={(event, newInputValue) => {
-                        console.log(newInputValue)
+                      onInputChange={(e, newInputValue) => {
                         this.setState({chosenProduct: newInputValue})
                       }}
+                      onBlur={this.setDefaultWholeSalePrice}
 
-                      getOptionLabel={(option) => option.title}
+                      getOptionLabel={(option) => option.product}
                       renderInput={(params) => 
                         <TextField {...params} 
                           label="Product" 
@@ -171,7 +192,7 @@ class PrototypeComponent extends React.Component {
                     id="wholesalePrice"
                     label="Wholesale price"
                     name="wholesalePrice"
-                    value={this.wholesalePrice}
+                    value={this.state.wholesalePrice}
                     onChange={this.onChangeWholesalePrice}
                   />
 
@@ -199,12 +220,16 @@ class PrototypeComponent extends React.Component {
                   </TableHead>
                   <TableBody>
                     {this.state.answers.map((row) => (
-                      <TableRow key={row.name + row.margin}>
+                      <TableRow key={row.name}>
                         <TableCell component="th" scope="row">
                           {row.state}
                         </TableCell>
-                        <TableCell align="right">{row.tax}</TableCell>
-                        <TableCell align="right">{this.formatColor(row.margin)}</TableCell>
+                        <TableCell align="right">
+                          {row.tax}
+                        </TableCell>
+                        <TableCell align="right">
+                          {this.formatColor(row.margin)}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
