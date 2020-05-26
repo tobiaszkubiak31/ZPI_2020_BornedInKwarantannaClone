@@ -121,7 +121,7 @@ class PrototypeComponent extends React.Component {
         let margin = ((this.state.customerPrice / taxCoefficient) - this.state.wholesalePrice).toFixed(2);
 
         //Uwzgledniamy koszty logistyki
-        margin = margin - currentState.logistics
+        margin = (margin - currentState.logistics).toFixed(2);
 
         newAnswers.push(this.createData(stateName,tax,margin))
       }
