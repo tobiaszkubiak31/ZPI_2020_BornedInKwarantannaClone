@@ -5,59 +5,62 @@ import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import FormControl from "@material-ui/core/FormControl";
 import Grid from "@material-ui/core/Grid";
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { validateNumber, validateProduct } from '../utils/ValidatingFunctions';
-import { withStyles } from '@material-ui/core/styles';
+import Paper from "@material-ui/core/Paper";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { validateNumber, validateProduct } from "../utils/ValidatingFunctions";
+import { withStyles } from "@material-ui/core/styles";
 import "../utils/service.js";
 import { getAllStates, getAllProducts } from "../utils/service.js";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
 
-const styles = theme => ({
+const styles = (theme) => ({
   grid: {
-    padding: theme.spacing(5)
+    padding: theme.spacing(5),
   },
   gridElement: {
-    margin: '2%',
-    width: '90%'
+    margin: "2%",
+    width: "90%",
   },
   paper: {
-    padding: theme.spacing(5,2,2,2),
-    flexWrap: 'wrap',
-
+    padding: theme.spacing(5, 2, 2, 2),
+    flexWrap: "wrap",
   },
   table: {
     minWidth: 550,
-  }
+  },
 });
 
 class PrototypeComponent extends React.Component {
   state = {
-    chosenProduct: "",
+    chosenProduct: "dasdas",
     customerPrice: 0.0,
     wholesalePrice: "",
     margin: 0.0,
     errorMessage: "",
     answers: [],
     states: [],
-    products: []
+    products: [],
   };
 
   componentWillMount() {
-    getAllStates().then( (response) => {
+    getAllStates().then((response) => {
       this.setState({
         states: response,
-      })
-    })
-    getAllProducts().then( (response) => {
+      });
+    });
+    getAllProducts().then((response) => {
       this.setState({
         products: response,
-      })
-    })
+      });
+    });
   }
 
   onChangeState = (e) => {
@@ -72,68 +75,76 @@ class PrototypeComponent extends React.Component {
     this.setState({ wholesalePrice: e.target.value });
   };
 
-  setDefaultWholeSalePrice = () =>{
-    let currentProduct = this.findProductByName(this.state.chosenProduct)
-    this.setState({ wholesalePrice: currentProduct.wholesalePrice,})
+  setDefaultWholeSalePrice = () => {
+    let currentProduct = this.findProductByName(this.state.chosenProduct);
+    this.setState({ wholesalePrice: currentProduct.wholesalePrice });
   };
 
   formatColor = (number) => {
-    if(number > 0) {
-      return <p style={{color: 'green', margin: '0px'}}>{number}</p>
+    if (number > 0) {
+      return <p style={{ color: "green", margin: "0px" }}>{number}</p>;
     } else {
-      return <p style={{color: 'red', margin: '0px'}}>{number}</p>
+      return <p style={{ color: "red", margin: "0px" }}>{number}</p>;
     }
-  }
+  };
 
   createData = (state, tax, margin) => {
     return { state, tax, margin };
-  }
+  };
 
   getTaxCoef = (state, product) => {
     for (var property of Object.entries(state)) {
-      if(property[0] === product.category) {
+      if (property[0] === product.category) {
         return property[1];
       }
     }
   };
 
   findProductByName(name) {
-    for(let product of this.state.products) {
-      if(product.product === name) {
-        return product
+    for (let product of this.state.products) {
+      if (product.product === name) {
+        return product;
       }
     }
   }
 
+  handleClick = () => {
+    console.log("Click happened");
+  };
   onButtonClick = (e) => {
-    if (validateNumber(this.state.customerPrice)
-        && validateProduct(this.state.chosenProduct)) {
-
-      const newAnswers = []
+    if (
+      validateNumber(this.state.customerPrice) &&
+      validateProduct(this.state.chosenProduct)
+    ) {
+      const newAnswers = [];
 
       for (let currentState of this.state.states) {
         let stateName = currentState.name;
-        let currentProduct = this.findProductByName(this.state.chosenProduct)
+        let currentProduct = this.findProductByName(this.state.chosenProduct);
 
         let taxCoefficient = this.getTaxCoef(currentState, currentProduct) + 1;
-        let prizeWithoutTax = (this.state.customerPrice / taxCoefficient).toFixed(2);
-        let tax =(this.state.customerPrice - prizeWithoutTax).toFixed(2);
-        let margin = ((this.state.customerPrice / taxCoefficient) - this.state.wholesalePrice).toFixed(2);
+        let prizeWithoutTax = (
+          this.state.customerPrice / taxCoefficient
+        ).toFixed(2);
+        let tax = (this.state.customerPrice - prizeWithoutTax).toFixed(2);
+        let margin = (
+          this.state.customerPrice / taxCoefficient -
+          this.state.wholesalePrice
+        ).toFixed(2);
 
         //Uwzgledniamy koszty logistyki
         margin = (margin - currentState.logistics).toFixed(2);
 
-        newAnswers.push(this.createData(stateName,tax,margin))
+        newAnswers.push(this.createData(stateName, tax, margin));
       }
 
-      newAnswers.sort((a, b) => a.margin < b.margin ? 1 : -1)
+      newAnswers.sort((a, b) => (a.margin < b.margin ? 1 : -1));
 
       this.setState({
         answers: newAnswers,
-      })
+      });
 
       this.setState({ errorMessage: "" });
-
     } else {
       this.setState({ errorMessage: "Niepoprawne dane wejsciowe!" });
     }
@@ -151,43 +162,96 @@ class PrototypeComponent extends React.Component {
 
           {/*Nasz formularz*/}
           <form noValidate>
-            <Grid container >
-              
+            <Grid container>
               <Grid item xs={6} className={classes.grid}>
                 <Paper elevation={3} className={classes.paper}>
-                  <FormControl variant="outlined" className={classes.gridElement}>
-                    <Autocomplete
+                  <FormControl
+                    variant="outlined"
+                    className={classes.gridElement}
+                  >
+                    {/* <Autocomplete
                       id="selectProduct"
                       native
-                      options={this.state.products} 
+                      options={this.state.products}
                       inputValue={this.state.chosenProduct}
                       onInputChange={(e, newInputValue) => {
-                        this.setState({chosenProduct: newInputValue})
+                        this.setState({ chosenProduct: newInputValue });
                       }}
                       onBlur={this.setDefaultWholeSalePrice}
-
                       getOptionLabel={(option) => option.product}
-                      renderInput={(params) => 
-                        <TextField {...params} 
-                          label="Product" 
-                          variant="outlined" 
-                        />}
-                    />
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Product"
+                          variant="outlined"
+                        />
+                      )}
+                    /> */}
+
+                    {this.state.chosenProduct != null ? (
+                      <Typography gutterBottom variant="h5" component="h3">
+                        Wybrałeś produkt {this.state.chosenProduct}
+                      </Typography>
+                    ) : (
+                      <Typography gutterBottom variant="h5" component="h3">
+                        Wybierz produkt:
+                      </Typography>
+                    )}
                   </FormControl>
+                  <Container className={classes.cardGrid} maxWidth="md">
+                    {/* End hero unit */}
+                    <Grid container spacing={4}>
+                      {this.state.products.map((item) => (
+                        <Grid item key={item.product} xs={12} sm={6} md={4}>
+                          <Card className={classes.card}>
+                            <CardMedia
+                              style={{ height: 0, paddingTop: "100.25%" }}
+                              className={classes.cardMedia}
+                              image={item.imagesrc}
+                              title="Image title"
+                            />
+                            <CardContent className={classes.cardContent}>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h3"
+                              >
+                                {item.product}
+                              </Typography>
+                            </CardContent>
+                            <CardActions>
+                              <Button
+                                size="small"
+                                background="primary"
+                                onClick={() => {
+                                  this.setState({
+                                    chosenProduct: item.product,
+                                  });
+                                  this.setDefaultWholeSalePrice();
+                                }}
+                              >
+                                select
+                              </Button>
+                            </CardActions>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Container>
 
                   <TextField
                     className={classes.gridElement}
-                    data-testid='after-taxes-input'
+                    data-testid="after-taxes-input"
                     variant="outlined"
                     id="customerPrice"
                     label="Customer price"
                     value={this.customerPrice}
                     onChange={this.onChangeCustomerPrize}
                   />
-                
+
                   <TextField
                     className={classes.gridElement}
-                    data-testid='buying-for-input'
+                    data-testid="buying-for-input"
                     variant="outlined"
                     id="wholesalePrice"
                     label="Wholesale price"
@@ -198,7 +262,7 @@ class PrototypeComponent extends React.Component {
 
                   <Button
                     className={classes.gridElement}
-                    data-testid='submit'
+                    data-testid="submit"
                     variant="contained"
                     color="primary"
                     onClick={this.onButtonClick}
@@ -209,8 +273,11 @@ class PrototypeComponent extends React.Component {
               </Grid>
 
               <Grid item xs={6} className={classes.grid}>
-
-                <Table className={classes.table} size="small" aria-label="a dense table">
+                <Table
+                  className={classes.table}
+                  size="small"
+                  aria-label="a dense table"
+                >
                   <TableHead>
                     <TableRow>
                       <TableCell>State</TableCell>
@@ -224,9 +291,7 @@ class PrototypeComponent extends React.Component {
                         <TableCell component="th" scope="row">
                           {row.state}
                         </TableCell>
-                        <TableCell align="right">
-                          {row.tax}
-                        </TableCell>
+                        <TableCell align="right">{row.tax}</TableCell>
                         <TableCell align="right">
                           {this.formatColor(row.margin)}
                         </TableCell>
@@ -234,16 +299,13 @@ class PrototypeComponent extends React.Component {
                     ))}
                   </TableBody>
                 </Table>
-                  
               </Grid>
-
             </Grid>
           </form>
-          
         </div>
       </Container>
     );
   }
 }
 
-export default withStyles(styles)(PrototypeComponent)
+export default withStyles(styles)(PrototypeComponent);
