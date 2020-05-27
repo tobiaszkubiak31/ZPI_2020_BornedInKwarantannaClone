@@ -38,7 +38,7 @@ const styles = (theme) => ({
   },
   cardContent: {
     minHeight: 80,
-  }
+  },
 });
 
 class PrototypeComponent extends React.Component {
@@ -79,10 +79,10 @@ class PrototypeComponent extends React.Component {
   };
 
   onChangeChosenProduct = (newValue) => {
-    this.setState({ chosenProduct: newValue}, function () {
-      this.setDefaultWholeSalePrice()
-    })
-  }
+    this.setState({ chosenProduct: newValue }, function () {
+      this.setDefaultWholeSalePrice();
+    });
+  };
 
   setDefaultWholeSalePrice = () => {
     let currentProduct = this.findProductByName(this.state.chosenProduct);
@@ -179,6 +179,36 @@ class PrototypeComponent extends React.Component {
                     variant="outlined"
                     className={classes.gridElement}
                   >
+                    <TextField
+                      className={classes.gridElement}
+                      data-testid="after-taxes-input"
+                      variant="outlined"
+                      id="customerPrice"
+                      label="Customer price"
+                      value={this.customerPrice}
+                      onChange={this.onChangeCustomerPrize}
+                    />
+
+                    <TextField
+                      className={classes.gridElement}
+                      data-testid="buying-for-input"
+                      variant="outlined"
+                      id="wholesalePrice"
+                      label="Wholesale price"
+                      name="wholesalePrice"
+                      value={this.state.wholesalePrice}
+                      onChange={this.onChangeWholesalePrice}
+                    />
+
+                    <Button
+                      className={classes.gridElement}
+                      data-testid="submit"
+                      variant="contained"
+                      color="primary"
+                      onClick={this.onButtonClick}
+                    >
+                      Oblicz
+                    </Button>
                     {/* <Autocomplete
                       id="selectProduct"
                       native
@@ -231,9 +261,12 @@ class PrototypeComponent extends React.Component {
                             </CardContent>
                             <CardActions>
                               <Button
+                                style={{ width: "100%" }}
                                 size="small"
                                 background="primary"
-                                onClick={newValue => this.onChangeChosenProduct(item.product)}
+                                onClick={(newValue) =>
+                                  this.onChangeChosenProduct(item.product)
+                                }
                               >
                                 select
                               </Button>
@@ -243,37 +276,6 @@ class PrototypeComponent extends React.Component {
                       ))}
                     </Grid>
                   </Container>
-
-                  <TextField
-                    className={classes.gridElement}
-                    data-testid="after-taxes-input"
-                    variant="outlined"
-                    id="customerPrice"
-                    label="Customer price"
-                    value={this.customerPrice}
-                    onChange={this.onChangeCustomerPrize}
-                  />
-
-                  <TextField
-                    className={classes.gridElement}
-                    data-testid="buying-for-input"
-                    variant="outlined"
-                    id="wholesalePrice"
-                    label="Wholesale price"
-                    name="wholesalePrice"
-                    value={this.state.wholesalePrice}
-                    onChange={this.onChangeWholesalePrice}
-                  />
-
-                  <Button
-                    className={classes.gridElement}
-                    data-testid="submit"
-                    variant="contained"
-                    color="primary"
-                    onClick={this.onButtonClick}
-                  >
-                    Oblicz
-                  </Button>
                 </Paper>
               </Grid>
 
