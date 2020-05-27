@@ -36,11 +36,14 @@ const styles = (theme) => ({
   table: {
     minWidth: 550,
   },
+  cardContent: {
+    minHeight: 80,
+  }
 });
 
 class PrototypeComponent extends React.Component {
   state = {
-    chosenProduct: "dasdas",
+    chosenProduct: "",
     customerPrice: 0.0,
     wholesalePrice: "",
     margin: 0.0,
@@ -74,6 +77,12 @@ class PrototypeComponent extends React.Component {
   onChangeWholesalePrice = (e) => {
     this.setState({ wholesalePrice: e.target.value });
   };
+
+  onChangeChosenProduct = (newValue) => {
+    this.setState({ chosenProduct: newValue}, function () {
+      this.setDefaultWholeSalePrice()
+    })
+  }
 
   setDefaultWholeSalePrice = () => {
     let currentProduct = this.findProductByName(this.state.chosenProduct);
@@ -111,6 +120,7 @@ class PrototypeComponent extends React.Component {
   handleClick = () => {
     console.log("Click happened");
   };
+
   onButtonClick = (e) => {
     if (
       validateNumber(this.state.customerPrice) &&
@@ -190,11 +200,11 @@ class PrototypeComponent extends React.Component {
 
                     {this.state.chosenProduct != null ? (
                       <Typography gutterBottom variant="h5" component="h3">
-                        Wybrałeś produkt {this.state.chosenProduct}
+                        Chosen product: {this.state.chosenProduct}
                       </Typography>
                     ) : (
                       <Typography gutterBottom variant="h5" component="h3">
-                        Wybierz produkt:
+                        Choose product
                       </Typography>
                     )}
                   </FormControl>
@@ -223,12 +233,7 @@ class PrototypeComponent extends React.Component {
                               <Button
                                 size="small"
                                 background="primary"
-                                onClick={() => {
-                                  this.setState({
-                                    chosenProduct: item.product,
-                                  });
-                                  this.setDefaultWholeSalePrice();
-                                }}
+                                onClick={newValue => this.onChangeChosenProduct(item.product)}
                               >
                                 select
                               </Button>
