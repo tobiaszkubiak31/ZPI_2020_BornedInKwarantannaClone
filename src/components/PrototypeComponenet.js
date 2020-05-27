@@ -5,49 +5,66 @@ import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import FormControl from "@material-ui/core/FormControl";
 import Grid from "@material-ui/core/Grid";
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { taxstate } from "./fakeData.js";
-import { validateNumber, validateProduct } from '../utils/ValidatingFunctions';
-import { withStyles } from '@material-ui/core/styles';
+import Paper from "@material-ui/core/Paper";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { validateNumber, validateProduct } from "../utils/ValidatingFunctions";
+import { withStyles } from "@material-ui/core/styles";
+import "../utils/service.js";
+import { getAllStates, getAllProducts } from "../utils/service.js";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
 
-const styles = theme => ({
+const styles = (theme) => ({
   grid: {
-    padding: theme.spacing(5)
+    padding: theme.spacing(5),
   },
   gridElement: {
-    margin: '2%',
-    width: '90%'
+    margin: "2%",
+    width: "90%",
   },
   paper: {
-    padding: theme.spacing(5,2,2,2),
-    flexWrap: 'wrap',
-
+    padding: theme.spacing(5, 2, 2, 2),
+    flexWrap: "wrap",
   },
   table: {
     minWidth: 550,
-  }
+  },
+  cardContent: {
+    minHeight: 80,
+  },
 });
 
 class PrototypeComponent extends React.Component {
   state = {
     chosenProduct: "",
     customerPrice: 0.0,
-    wholesalePrice: 0.0,
+    wholesalePrice: "",
     margin: 0.0,
     errorMessage: "",
     answers: [],
-    products: [
-      { title: 'base'},
-      { title: 'groceries'},
-      { title: 'clothing'}
-    ]
+    states: [],
+    products: [],
   };
+
+  componentWillMount() {
+    getAllStates().then((response) => {
+      this.setState({
+        states: response,
+      });
+    });
+    getAllProducts().then((response) => {
+      this.setState({
+        products: response,
+      });
+    });
+  }
 
   onChangeState = (e) => {
     this.setState({ chosenState: e.target.value });
@@ -61,57 +78,83 @@ class PrototypeComponent extends React.Component {
     this.setState({ wholesalePrice: e.target.value });
   };
 
+  onChangeChosenProduct = (newValue) => {
+    this.setState({ chosenProduct: newValue }, function () {
+      this.setDefaultWholeSalePrice();
+    });
+  };
+
+  setDefaultWholeSalePrice = () => {
+    let currentProduct = this.findProductByName(this.state.chosenProduct);
+    this.setState({ wholesalePrice: currentProduct.wholesalePrice });
+  };
+
   formatColor = (number) => {
-    if(number > 0) {
-      return <p style={{color: 'green', margin: '0px'}}>{number}</p>
+    if (number > 0) {
+      return <p style={{ color: "green", margin: "0px" }}>{number}</p>;
     } else {
-      return <p style={{color: 'red', margin: '0px'}}>{number}</p>
+      return <p style={{ color: "red", margin: "0px" }}>{number}</p>;
     }
-  }
+  };
 
   createData = (state, tax, margin) => {
     return { state, tax, margin };
-  }
+  };
 
-  getTaxCoef = (statee, product) => {
-    var taxstates = taxstate;
-    for (var property of Object.entries(taxstates)) {
-      if (property[1].name === statee) {
-        for (var element in property[1]) {
-          if (element === product) {
-            return property[1][element];
-          }
-        }
+  getTaxCoef = (state, product) => {
+    for (var property of Object.entries(state)) {
+      if (property[0] === product.category) {
+        return property[1];
       }
     }
-    this.setState({ errorMessage: "Blad podczas obliiczen podatku" });
+  };
+
+  findProductByName(name) {
+    for (let product of this.state.products) {
+      if (product.product === name) {
+        return product;
+      }
+    }
+  }
+
+  handleClick = () => {
+    console.log("Click happened");
   };
 
   onButtonClick = (e) => {
-    if (validateNumber(this.state.customerPrice)
-        && validateProduct(this.state.chosenProduct)) {
+    if (
+      validateNumber(this.state.customerPrice) &&
+      validateProduct(this.state.chosenProduct)
+    ) {
+      const newAnswers = [];
 
-      const newAnswers = []
+      for (let currentState of this.state.states) {
+        let stateName = currentState.name;
+        let currentProduct = this.findProductByName(this.state.chosenProduct);
 
-      for (var property of Object.entries(taxstate)) {
-        let currentState = property[1].name;
+        let taxCoefficient = this.getTaxCoef(currentState, currentProduct) + 1;
+        let prizeWithoutTax = (
+          this.state.customerPrice / taxCoefficient
+        ).toFixed(2);
+        let tax = (this.state.customerPrice - prizeWithoutTax).toFixed(2);
+        let margin = (
+          this.state.customerPrice / taxCoefficient -
+          this.state.wholesalePrice
+        ).toFixed(2);
 
-        let taxCoefficient = this.getTaxCoef(currentState, this.state.chosenProduct) + 1;
-        let prizeWithoutTax = (this.state.customerPrice / taxCoefficient).toFixed(2);
-        let tax =(this.state.customerPrice - prizeWithoutTax).toFixed(2);
-        let margin = ((this.state.customerPrice / taxCoefficient) - this.state.wholesalePrice).toFixed(2);
+        //Uwzgledniamy koszty logistyki
+        margin = (margin - currentState.logistics).toFixed(2);
 
-        newAnswers.push(this.createData(currentState,tax,margin))
+        newAnswers.push(this.createData(stateName, tax, margin));
       }
 
-      newAnswers.sort((a, b) => a.margin < b.margin ? 1 : -1)
+      newAnswers.sort((a, b) => (a.margin < b.margin ? 1 : -1));
 
       this.setState({
         answers: newAnswers,
-      })
+      });
 
       this.setState({ errorMessage: "" });
-
     } else {
       this.setState({ errorMessage: "Niepoprawne dane wejsciowe!" });
     }
@@ -129,67 +172,119 @@ class PrototypeComponent extends React.Component {
 
           {/*Nasz formularz*/}
           <form noValidate>
-            <Grid container >
-              
+            <Grid container>
               <Grid item xs={6} className={classes.grid}>
                 <Paper elevation={3} className={classes.paper}>
-                  <FormControl variant="outlined" className={classes.gridElement}>
-                    <Autocomplete
+                  <FormControl
+                    variant="outlined"
+                    className={classes.gridElement}
+                  >
+                    <TextField
+                      className={classes.gridElement}
+                      data-testid="after-taxes-input"
+                      variant="outlined"
+                      id="customerPrice"
+                      label="Customer price"
+                      value={this.customerPrice}
+                      onChange={this.onChangeCustomerPrize}
+                    />
+
+                    <TextField
+                      className={classes.gridElement}
+                      data-testid="buying-for-input"
+                      variant="outlined"
+                      id="wholesalePrice"
+                      label="Wholesale price"
+                      name="wholesalePrice"
+                      value={this.state.wholesalePrice}
+                      onChange={this.onChangeWholesalePrice}
+                    />
+
+                    <Button
+                      className={classes.gridElement}
+                      data-testid="submit"
+                      variant="contained"
+                      color="primary"
+                      onClick={this.onButtonClick}
+                    >
+                      Oblicz
+                    </Button>
+                    {/* <Autocomplete
                       id="selectProduct"
                       native
-                      options={this.state.products} 
-
+                      options={this.state.products}
                       inputValue={this.state.chosenProduct}
-                      onInputChange={(event, newInputValue) => {
-                        console.log(newInputValue)
-                        this.setState({chosenProduct: newInputValue})
+                      onInputChange={(e, newInputValue) => {
+                        this.setState({ chosenProduct: newInputValue });
                       }}
+                      onBlur={this.setDefaultWholeSalePrice}
+                      getOptionLabel={(option) => option.product}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Product"
+                          variant="outlined"
+                        />
+                      )}
+                    /> */}
 
-                      getOptionLabel={(option) => option.title}
-                      renderInput={(params) => 
-                        <TextField {...params} 
-                          label="Product" 
-                          variant="outlined" 
-                        />}
-                    />
+                    {this.state.chosenProduct != null ? (
+                      <Typography gutterBottom variant="h5" component="h3">
+                        Chosen product: {this.state.chosenProduct}
+                      </Typography>
+                    ) : (
+                      <Typography gutterBottom variant="h5" component="h3">
+                        Choose product
+                      </Typography>
+                    )}
                   </FormControl>
-
-                  <TextField
-                    className={classes.gridElement}
-                    data-testid='after-taxes-input'
-                    variant="outlined"
-                    id="customerPrice"
-                    label="Customer price"
-                    value={this.customerPrice}
-                    onChange={this.onChangeCustomerPrize}
-                  />
-                
-                  <TextField
-                    className={classes.gridElement}
-                    data-testid='buying-for-input'
-                    variant="outlined"
-                    id="wholesalePrice"
-                    label="Wholesale price"
-                    name="wholesalePrice"
-                    value={this.wholesalePrice}
-                    onChange={this.onChangeWholesalePrice}
-                  />
-
-                  <Button
-                    className={classes.gridElement}
-                    data-testid='submit'
-                    variant="contained"
-                    color="primary"
-                    onClick={this.onButtonClick}
-                  >
-                    Oblicz
-                  </Button>
+                  <Container className={classes.cardGrid} maxWidth="md">
+                    {/* End hero unit */}
+                    <Grid container spacing={4}>
+                      {this.state.products.map((item) => (
+                        <Grid item key={item.product} xs={12} sm={6} md={4}>
+                          <Card className={classes.card}>
+                            <CardMedia
+                              style={{ height: 0, paddingTop: "100.25%" }}
+                              className={classes.cardMedia}
+                              image={item.imagesrc}
+                              title="Image title"
+                            />
+                            <CardContent className={classes.cardContent}>
+                              <Typography
+                                gutterBottom
+                                variant="h5"
+                                component="h3"
+                              >
+                                {item.product}
+                              </Typography>
+                            </CardContent>
+                            <CardActions>
+                              <Button
+                                style={{ width: "100%" }}
+                                size="small"
+                                background="primary"
+                                onClick={(newValue) =>
+                                  this.onChangeChosenProduct(item.product)
+                                }
+                              >
+                                select
+                              </Button>
+                            </CardActions>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Container>
                 </Paper>
               </Grid>
 
               <Grid item xs={6} className={classes.grid}>
-
-                <Table className={classes.table} size="small" aria-label="a dense table">
+                <Table
+                  className={classes.table}
+                  size="small"
+                  aria-label="a dense table"
+                >
                   <TableHead>
                     <TableRow>
                       <TableCell>State</TableCell>
@@ -199,26 +294,25 @@ class PrototypeComponent extends React.Component {
                   </TableHead>
                   <TableBody>
                     {this.state.answers.map((row) => (
-                      <TableRow key={row.name + row.margin}>
+                      <TableRow key={row.name}>
                         <TableCell component="th" scope="row">
                           {row.state}
                         </TableCell>
                         <TableCell align="right">{row.tax}</TableCell>
-                        <TableCell align="right">{this.formatColor(row.margin)}</TableCell>
+                        <TableCell align="right">
+                          {this.formatColor(row.margin)}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-                  
               </Grid>
-
             </Grid>
           </form>
-          
         </div>
       </Container>
     );
   }
 }
 
-export default withStyles(styles)(PrototypeComponent)
+export default withStyles(styles)(PrototypeComponent);
