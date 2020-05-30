@@ -36,4 +36,4 @@ steps:
     SonarCloud: 'Code analyse'
     organization: '9d6dd48e270fd2af5f82926e090b08c6c51d1a49'
     scannerMode: 'MSBuild'
-    projectKey: '9d6dd48e270fd2af5f82926e090b08c6c51d1a49'
+    projectKey: 'BornedInKwartannaAnalysis'
