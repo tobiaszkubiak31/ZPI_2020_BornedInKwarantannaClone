@@ -10,20 +10,9 @@ trigger:
 resources:
 - repo: self
 
-variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '<YOUR_DETAILS>'
-  imageRepository: '<YOUR_IMAGE_NAME>'
-  containerRegistry: '<YOUR_ACR>.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: '$(Build.BuildId)'
-  
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
 stages:
 - stage: Build
-  displayName: Build and push stage
+  displayName: Build stage
   jobs:  
   - job: Build
     displayName: Build
@@ -39,6 +28,21 @@ stages:
           npm install
           npm run build
         displayName: 'npm install and build'
+- stage: Test
+  displayName: Test stage
+  jobs:  
+  - job: Build
+    displayName: Test
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: SonarCloudPrepare@1
+        inputs:
+          SonarCloud: 'Code analyse'
+          organization: '9d6dd48e270fd2af5f82926e090b08c6c51d1a49'
+          scannerMode: 'MSBuild'
+          projectKey: 'BornedInKwartannaAnalysis'
+              
 - stage: deploy
   displayName: Deploy app to Heroku
   jobs:  
