@@ -24,8 +24,6 @@ jobs:
       npm run build
     displayName: 'npm install and build'
 
-
-jobs:
 - job: Deploy
   trigger:
   - master
