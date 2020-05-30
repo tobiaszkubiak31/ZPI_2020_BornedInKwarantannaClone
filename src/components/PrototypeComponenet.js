@@ -242,7 +242,7 @@ class PrototypeComponent extends React.Component {
                     {/* End hero unit */}
                     <Grid container spacing={4}>
                       {this.state.products.map((item) => (
-                        <Grid item key={item.product} xs={12} sm={6} md={4}>
+                        <Grid item key={item.product} xs={12} sm={6} md={5}>
                           <Card className={classes.card}>
                             <CardMedia
                               style={{ height: 0, paddingTop: "100.25%" }}
