@@ -289,6 +289,7 @@ class PrototypeComponent extends React.Component {
                     <TableRow>
                       <TableCell>State</TableCell>
                       <TableCell align="right">Tax</TableCell>
+                      <TableCell align="right">Logistics</TableCell>
                       <TableCell align="right">Marign</TableCell>
                     </TableRow>
                   </TableHead>
@@ -299,6 +300,7 @@ class PrototypeComponent extends React.Component {
                           {row.state}
                         </TableCell>
                         <TableCell align="right">{row.tax}</TableCell>
+                        <TableCell align="right">{((this.state.customerPrice-row.tax-row.margin)-this.state.wholesalePrice).toFixed(2)}</TableCell>
                         <TableCell align="right">
                           {this.formatColor(row.margin)}
                         </TableCell>
