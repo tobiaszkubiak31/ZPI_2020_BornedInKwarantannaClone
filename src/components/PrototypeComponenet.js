@@ -8,6 +8,7 @@ import FormControl from "@material-ui/core/FormControl";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
+import Select from "@material-ui/core/Select";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
@@ -19,7 +20,9 @@ import { getAllStates, getAllProducts } from "../utils/service.js";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
+import InputLabel from "@material-ui/core/InputLabel";
 import CardMedia from "@material-ui/core/CardMedia";
+import MenuItem from "@material-ui/core/MenuItem";
 
 const styles = (theme) => ({
   grid: {
@@ -28,6 +31,14 @@ const styles = (theme) => ({
   gridElement: {
     margin: "2%",
     width: "90%",
+  },
+  selectCategory: {
+    margin: "2%",
+    width: "90%",
+    'text-align': 'left',
+  },
+  selectLabel: {
+    margin: "2%",
   },
   paper: {
     padding: theme.spacing(5, 2, 2, 2),
@@ -56,6 +67,7 @@ const styles = (theme) => ({
 class PrototypeComponent extends React.Component {
   state = {
     chosenProduct: "",
+    chosenCategory: "",
     customerPrice: 0.0,
     wholesalePrice: "",
     margin: 0.0,
@@ -63,6 +75,7 @@ class PrototypeComponent extends React.Component {
     answers: [],
     states: [],
     products: [],
+    filteredProducts: [],
   };
 
   componentWillMount() {
@@ -90,11 +103,29 @@ class PrototypeComponent extends React.Component {
     this.setState({ wholesalePrice: e.target.value });
   };
 
+  onChangeChosenCategory = (e) => {
+    this.setState({ chosenCategory: e.target.value }, function () {
+      this.filterProducts()
+    });
+  }
+
   onChangeChosenProduct = (newValue) => {
     this.setState({ chosenProduct: newValue }, function () {
       this.setDefaultWholeSalePrice();
     });
   };
+
+  filterProducts = () => {
+    let productsList = []
+    for (let product of this.state.products) {
+      if (product.category === this.state.chosenCategory) {
+        productsList.push(product)
+      }
+    }
+    this.setState({
+      filteredProducts: productsList
+    })
+  }
 
   setDefaultWholeSalePrice = () => {
     let currentProduct = this.findProductByName(this.state.chosenProduct);
@@ -191,6 +222,24 @@ class PrototypeComponent extends React.Component {
                     variant="outlined"
                     className={classes.gridElement}
                   >
+                    <InputLabel className={classes.selectLabel}  id="product-category-select-label">Product category</InputLabel>
+                    <Select
+                      className={classes.selectCategory}
+                      variant="outlined"
+                      label="Product category"
+                      name="chosenProductInput"
+                      labelId="product-category-select-label"
+                      value={this.state.chosenCategory}
+                      onChange={this.onChangeChosenCategory}
+                    >
+                      <MenuItem value={"groceries"}>Groceries</MenuItem>
+                      <MenuItem value={"preparedFood"}>Prepared Food</MenuItem>
+                      <MenuItem value={"prescriptionDrug"}>Prescription Drug</MenuItem>
+                      <MenuItem value={"nonPrescriptionDrug"}>Non Prescription Drug</MenuItem>
+                      <MenuItem value={"clothing"}>Clothing</MenuItem>
+                      <MenuItem value={"intangibles"}>Intangibles</MenuItem>
+                    </Select>
+
                     <TextField
                       className={classes.gridElement}
                       data-testid="after-taxes-input"
@@ -234,7 +283,7 @@ class PrototypeComponent extends React.Component {
                   </FormControl>
                   <Container maxWidth="md">
                     <Grid className={classes.cardContainer} container spacing={4}>
-                      {this.state.products.map((item) => (
+                      {this.state.filteredProducts.map((item) => (
                         <Grid item key={item.product} xs={12} sm={6} md={5}>
                           <ButtonBase
                             className={classes.buttonBase}
