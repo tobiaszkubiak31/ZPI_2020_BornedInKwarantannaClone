@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
+import ButtonBase from "@material-ui/core/ButtonBase";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
@@ -11,7 +12,6 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import { validateNumber, validateProduct } from "../utils/ValidatingFunctions";
 import { withStyles } from "@material-ui/core/styles";
 import "../utils/service.js";
@@ -23,7 +23,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 
 const styles = (theme) => ({
   grid: {
-    padding: theme.spacing(5),
+    padding: theme.spacing(4),
   },
   gridElement: {
     margin: "2%",
@@ -36,9 +36,21 @@ const styles = (theme) => ({
   table: {
     minWidth: 550,
   },
-  cardContent: {
-    minHeight: 80,
+  card: {
+    minHeight: '20vh',
+    minWidth: '10vw',
   },
+  cardMedia: {
+    paddingTop: "100.25%",
+    height: 0,
+  },
+  buttonBase: {
+    'text-align': 'center',
+    width: "100%",
+  },
+  cardContainer: {
+    margin: '1vh',
+  }
 });
 
 class PrototypeComponent extends React.Component {
@@ -209,24 +221,6 @@ class PrototypeComponent extends React.Component {
                     >
                       Oblicz
                     </Button>
-                    {/* <Autocomplete
-                      id="selectProduct"
-                      native
-                      options={this.state.products}
-                      inputValue={this.state.chosenProduct}
-                      onInputChange={(e, newInputValue) => {
-                        this.setState({ chosenProduct: newInputValue });
-                      }}
-                      onBlur={this.setDefaultWholeSalePrice}
-                      getOptionLabel={(option) => option.product}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Product"
-                          variant="outlined"
-                        />
-                      )}
-                    /> */}
 
                     {this.state.chosenProduct != null ? (
                       <Typography gutterBottom variant="h5" component="h3">
@@ -238,40 +232,37 @@ class PrototypeComponent extends React.Component {
                       </Typography>
                     )}
                   </FormControl>
-                  <Container className={classes.cardGrid} maxWidth="md">
-                    {/* End hero unit */}
-                    <Grid container spacing={4}>
+                  <Container maxWidth="md">
+                    <Grid className={classes.cardContainer} container spacing={4}>
                       {this.state.products.map((item) => (
                         <Grid item key={item.product} xs={12} sm={6} md={5}>
-                          <Card className={classes.card}>
-                            <CardMedia
-                              style={{ height: 0, paddingTop: "100.25%" }}
-                              className={classes.cardMedia}
-                              image={item.imagesrc}
-                              title="Image title"
-                            />
-                            <CardContent className={classes.cardContent}>
-                              <Typography
-                                gutterBottom
-                                variant="h5"
-                                component="h3"
-                              >
-                                {item.product}
-                              </Typography>
-                            </CardContent>
-                            <CardActions>
-                              <Button
-                                style={{ width: "100%" }}
-                                size="small"
-                                background="primary"
-                                onClick={(newValue) =>
-                                  this.onChangeChosenProduct(item.product)
-                                }
-                              >
-                                select
-                              </Button>
-                            </CardActions>
-                          </Card>
+                          <ButtonBase
+                            className={classes.buttonBase}
+                            size="small"
+                            background="primary"
+                            onClick={(newValue) =>
+                              this.onChangeChosenProduct(item.product)
+                            }
+                          >
+                            <Card className={classes.card}>
+                              <CardMedia
+                                className={classes.cardMedia}
+                                image={item.imagesrc}
+                                title="Image title"
+                              />
+                              <CardContent>
+                                <Typography
+                                  gutterBottom
+                                  variant="h5"
+                                  component="h3"
+                                >
+                                  {item.product}
+                                </Typography>
+                              </CardContent>
+                              <CardActions>
+                              </CardActions>
+                            </Card>
+                          </ButtonBase>
                         </Grid>
                       ))}
                     </Grid>
