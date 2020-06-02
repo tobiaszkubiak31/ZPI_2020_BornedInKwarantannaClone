@@ -70,6 +70,7 @@ class PrototypeComponent extends React.Component {
     chosenCategory: "",
     customerPrice: 0.0,
     wholesalePrice: "",
+    suggestedPrice: "",
     margin: 0.0,
     errorMessage: "",
     answers: [],
@@ -132,16 +133,16 @@ class PrototypeComponent extends React.Component {
     this.setState({ wholesalePrice: currentProduct.wholesalePrice });
   };
 
-  formatColor = (number) => {
-    if (number > 0) {
-      return <p style={{ color: "green", margin: "0px" }}>{number}</p>;
+  formatColor = (number, strAtEnd) => {
+    if (parseFloat(number) > 0) {
+      return <p style={{ color: "green", margin: "0px" }}>{parseFloat(number) + strAtEnd}</p>;
     } else {
-      return <p style={{ color: "red", margin: "0px" }}>{number}</p>;
+      return <p style={{ color: "red", margin: "0px" }}>{parseFloat(number) + strAtEnd}</p>;
     }
   };
 
-  createData = (state, tax, margin) => {
-    return { state, tax, margin };
+  createData = (state, tax, percentMargin, margin) => {
+    return { state, tax, percentMargin, margin };
   };
 
   getTaxCoef = (state, product) => {
@@ -188,7 +189,10 @@ class PrototypeComponent extends React.Component {
         //Uwzgledniamy koszty logistyki
         margin = (margin - currentState.logistics).toFixed(2);
 
-        newAnswers.push(this.createData(stateName, tax, margin));
+        let percentMargin = (parseFloat(margin) / (parseFloat(currentProduct.wholesalePrice) + parseFloat(tax) + parseFloat(currentState.logistics) ) ) * 100.0
+        percentMargin = percentMargin.toFixed(2)
+
+        newAnswers.push(this.createData(stateName, tax, percentMargin, margin));
       }
 
       newAnswers.sort((a, b) => (a.margin < b.margin ? 1 : -1));
@@ -330,6 +334,7 @@ class PrototypeComponent extends React.Component {
                       <TableCell>State</TableCell>
                       <TableCell align="right">Tax</TableCell>
                       <TableCell align="right">Logistics</TableCell>
+                      <TableCell align="right">% Margin</TableCell>
                       <TableCell align="right">Marign</TableCell>
                     </TableRow>
                   </TableHead>
@@ -342,7 +347,10 @@ class PrototypeComponent extends React.Component {
                         <TableCell align="right">{row.tax}</TableCell>
                         <TableCell align="right">{((this.state.customerPrice-row.tax-row.margin)-this.state.wholesalePrice).toFixed(2)}</TableCell>
                         <TableCell align="right">
-                          {this.formatColor(row.margin)}
+                          {this.formatColor(row.percentMargin, '%')}
+                        </TableCell>
+                        <TableCell align="right">
+                          {this.formatColor(row.margin, '')}
                         </TableCell>
                       </TableRow>
                     ))}
