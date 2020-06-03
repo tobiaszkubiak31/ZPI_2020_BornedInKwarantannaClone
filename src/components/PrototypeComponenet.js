@@ -111,8 +111,10 @@ class PrototypeComponent extends React.Component {
   }
 
   onChangeChosenProduct = (newValue) => {
-    this.setState({ chosenProduct: newValue }, function () {
+    this.setState({ chosenProduct: newValue,
+                  }, function () {
       this.setDefaultWholeSalePrice();
+      this.calculateDefaultPrice();
     });
   };
 
@@ -141,8 +143,8 @@ class PrototypeComponent extends React.Component {
     }
   };
 
-  createData = (state, tax, percentMargin, margin) => {
-    return { state, tax, percentMargin, margin };
+  createData = (state, tax, logistics, percentMargin, margin) => {
+    return { state, tax, logistics, percentMargin, margin };
   };
 
   getTaxCoef = (state, product) => {
@@ -161,9 +163,33 @@ class PrototypeComponent extends React.Component {
     }
   }
 
-  handleClick = () => {
-    console.log("Click happened");
-  };
+  calculateDefaultPrice = () => {
+    let suggestedPrice = 0
+
+    for (let currentState of this.state.states) {
+      let currentProduct = this.findProductByName(this.state.chosenProduct)
+
+      let taxCoefficient = this.getTaxCoef(currentState, currentProduct)
+      let logistics = parseFloat(currentState.logistics)
+      //procentowy zysk
+      let percentMargin = 10
+      let wholesalePrice = parseFloat(currentProduct.wholesalePrice)
+
+      let suggestedPriceBuffor = -((percentMargin+100)*(taxCoefficient+1)*(logistics+wholesalePrice))/(percentMargin*taxCoefficient - 100)
+      
+      if(suggestedPrice < suggestedPriceBuffor ) {
+        suggestedPrice = suggestedPriceBuffor
+      }
+    }
+
+    if(suggestedPrice%0.01<0.005) {
+      suggestedPrice = suggestedPrice + 0.005
+    }
+
+    this.setState({
+      suggestedPrice: suggestedPrice.toFixed(2),
+    });
+  }
 
   onButtonClick = (e) => {
     if (
@@ -179,12 +205,9 @@ class PrototypeComponent extends React.Component {
         let taxCoefficient = this.getTaxCoef(currentState, currentProduct) + 1;
         let prizeWithoutTax = (
           this.state.customerPrice / taxCoefficient
-        ).toFixed(2);
+        );
         let tax = (this.state.customerPrice - prizeWithoutTax).toFixed(2);
-        let margin = (
-          this.state.customerPrice / taxCoefficient -
-          this.state.wholesalePrice
-        ).toFixed(2);
+        let margin = (prizeWithoutTax - this.state.wholesalePrice).toFixed(2);
 
         //Uwzgledniamy koszty logistyki
         margin = (margin - currentState.logistics).toFixed(2);
@@ -192,7 +215,7 @@ class PrototypeComponent extends React.Component {
         let percentMargin = (parseFloat(margin) / (parseFloat(currentProduct.wholesalePrice) + parseFloat(tax) + parseFloat(currentState.logistics) ) ) * 100.0
         percentMargin = percentMargin.toFixed(2)
 
-        newAnswers.push(this.createData(stateName, tax, percentMargin, margin));
+        newAnswers.push(this.createData(stateName, tax, currentState.logistics, percentMargin, margin));
       }
 
       newAnswers.sort((a, b) => (a.margin < b.margin ? 1 : -1));
@@ -275,6 +298,12 @@ class PrototypeComponent extends React.Component {
                       Oblicz
                     </Button>
 
+
+
+                    <Typography gutterBottom variant="h5" component="h3">
+                        Suggested price: {this.state.suggestedPrice}
+                    </Typography>
+
                     {this.state.chosenProduct != null ? (
                       <Typography gutterBottom variant="h5" component="h3">
                         Chosen product: {this.state.chosenProduct}
@@ -345,7 +374,7 @@ class PrototypeComponent extends React.Component {
                           {row.state}
                         </TableCell>
                         <TableCell align="right">{row.tax}</TableCell>
-                        <TableCell align="right">{((this.state.customerPrice-row.tax-row.margin)-this.state.wholesalePrice).toFixed(2)}</TableCell>
+                        <TableCell align="right">{row.logistics}</TableCell>
                         <TableCell align="right">
                           {this.formatColor(row.percentMargin, '%')}
                         </TableCell>
