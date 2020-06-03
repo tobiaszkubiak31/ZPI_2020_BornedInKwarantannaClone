@@ -31,19 +31,11 @@ stages:
 - stage: Test
   displayName: Test stage
   jobs:  
-  - job: Build
+  - job: Test
     displayName: Test
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '10.x'
-      displayName: 'Install Node.js'
-    - script: |
-        npm install
-        npm run build
-      displayName: 'npm install and build'
     - task: SonarCloudPrepare@1
       inputs:
         SonarCloud: 'Code analyse'
