@@ -6,17 +6,12 @@ import '@testing-library/jest-dom/extend-expect'
 
 test('prototype component should render', async () => {
     const { getByText } = render(<PrototypeComponent/>)
-    expect(getByText('Prototyp aplikacji 1.0')).toBeInTheDocument()
+    expect(getByText('Tax Calculator')).toBeInTheDocument()
     expect(getByText('Oblicz')).toBeInTheDocument()
 })
 
 test('validateNumber function should return false with string', async () => {
     const toTest = "abcdefg"
-    expect(validateNumber(toTest)).toBe(false)
-})
-
-test('validateNumber function should return false with numbers and letters', async () => {
-    const toTest = "123asd"
     expect(validateNumber(toTest)).toBe(false)
 })
 

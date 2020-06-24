@@ -57,9 +57,9 @@ stages:
           script: |
             # Write your PowerShell commands here.
             
-            git checkout $(Build.SourceBranchName)
+            git checkout master
             git remote add heroku https://heroku:$(pat)@git.heroku.com/taxcalculatorzpi.git
-            git push -f heroku $(Build.SourceBranchName)
+            git push -f heroku master
 
 
 

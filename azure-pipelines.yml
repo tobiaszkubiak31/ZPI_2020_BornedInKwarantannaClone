@@ -1,0 +1,56 @@
+# Node.js with React
+
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- dev
+
+resources:
+- repo: self
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '10.x'
+        displayName: 'Install Node.js'
+
+      - script: |
+          npm install
+          npm build
+          CI=true npm test
+        displayName: 'npm install and build'
+# - stage: Test
+#   displayName: Test stage
+#   jobs:  
+#   - job: Test
+#     displayName: Test
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     steps:
+#       - task: NodeTool@0
+#       - script: |
+#             npm install
+#             npm run build
+#             npm test
+#             displayName: 'npm test'
+
+
+              
+
+# SonarCloud task to fix
+# - task: SonarCloudPrepare@1
+#   inputs:
+#     SonarCloud: 'Code analyse'
+#     organization: '9d6dd48e270fd2af5f82926e090b08c6c51d1a49'
+#     scannerMode: 'MSBuild'
+#     projectKey: 'BornedInKwartannaAnalysis'

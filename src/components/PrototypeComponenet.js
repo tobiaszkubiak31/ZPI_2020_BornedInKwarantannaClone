@@ -23,6 +23,12 @@ import CardContent from "@material-ui/core/CardContent";
 import InputLabel from "@material-ui/core/InputLabel";
 import CardMedia from "@material-ui/core/CardMedia";
 import MenuItem from "@material-ui/core/MenuItem";
+import { getAllRates } from "../utils/currencyService";
+import {
+  findProductByName,
+  calculateSuggestedPrice,
+  calculateDataForProductInState,
+} from "../utils/calculatingFunctions.js";
 
 const styles = (theme) => ({
   grid: {
@@ -35,7 +41,7 @@ const styles = (theme) => ({
   selectCategory: {
     margin: "2%",
     width: "90%",
-    'text-align': 'left',
+    "text-align": "left",
   },
   selectLabel: {
     margin: "2%",
@@ -48,20 +54,20 @@ const styles = (theme) => ({
     minWidth: 550,
   },
   card: {
-    minHeight: '20vh',
-    minWidth: '10vw',
+    minHeight: "20vh",
+    minWidth: "10vw",
   },
   cardMedia: {
     paddingTop: "100.25%",
     height: 0,
   },
   buttonBase: {
-    'text-align': 'center',
+    "text-align": "center",
     width: "100%",
   },
   cardContainer: {
-    margin: '1vh',
-  }
+    margin: "1vh",
+  },
 });
 
 class PrototypeComponent extends React.Component {
@@ -70,16 +76,21 @@ class PrototypeComponent extends React.Component {
     chosenCategory: "",
     customerPrice: 0.0,
     wholesalePrice: "",
-    suggestedPrice: "",
+    suggestedPriceUsd: "",
+    suggestedPriceAll: "",
+    suggestedPriceEur: "",
+    suggestedPricePln: "",
+    suggestedPriceSek: "",
     margin: 0.0,
     errorMessage: "",
     answers: [],
     states: [],
     products: [],
     filteredProducts: [],
+    rates: [],
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     getAllStates().then((response) => {
       this.setState({
         states: response,
@@ -88,6 +99,11 @@ class PrototypeComponent extends React.Component {
     getAllProducts().then((response) => {
       this.setState({
         products: response,
+      });
+    });
+    getAllRates().then((response) => {
+      this.setState({
+        rates: response,
       });
     });
   }
@@ -106,90 +122,113 @@ class PrototypeComponent extends React.Component {
 
   onChangeChosenCategory = (e) => {
     this.setState({ chosenCategory: e.target.value }, function () {
-      this.filterProducts()
+      this.filterProducts();
     });
-  }
+  };
 
   onChangeChosenProduct = (newValue) => {
-    this.setState({ chosenProduct: newValue,
-                  }, function () {
+    this.setState({ chosenProduct: newValue }, function () {
       this.setDefaultWholeSalePrice();
-      this.calculateDefaultPrice();
+      this.calculateSuggestedPriceForAllStates();
     });
   };
 
   filterProducts = () => {
-    let productsList = []
+    let productsList = [];
     for (let product of this.state.products) {
       if (product.category === this.state.chosenCategory) {
-        productsList.push(product)
+        productsList.push(product);
       }
     }
     this.setState({
-      filteredProducts: productsList
-    })
-  }
+      filteredProducts: productsList,
+    });
+  };
 
   setDefaultWholeSalePrice = () => {
-    let currentProduct = this.findProductByName(this.state.chosenProduct);
-    this.setState({ wholesalePrice: currentProduct.wholesalePrice });
+    let currentProduct = findProductByName(
+      this.state.chosenProduct,
+      this.state.products
+    );
+    this.setState({ wholesalePrice: currentProduct.wholesale_price });
   };
 
   formatColor = (number, strAtEnd) => {
     if (parseFloat(number) > 0) {
-      return <p style={{ color: "green", margin: "0px" }}>{parseFloat(number) + strAtEnd}</p>;
+      return (
+        <p style={{ color: "green", margin: "0px" }}>
+          {parseFloat(number) + strAtEnd}
+        </p>
+      );
     } else {
-      return <p style={{ color: "red", margin: "0px" }}>{parseFloat(number) + strAtEnd}</p>;
+      return (
+        <p style={{ color: "red", margin: "0px" }}>
+          {parseFloat(number) + strAtEnd}
+        </p>
+      );
     }
   };
 
-  createData = (state, tax, logistics, percentMargin, margin) => {
-    return { state, tax, logistics, percentMargin, margin };
-  };
-
-  getTaxCoef = (state, product) => {
-    for (var property of Object.entries(state)) {
-      if (property[0] === product.category) {
-        return property[1];
-      }
+  printPrice = (currency) => {
+    if (currency === "USD" && this.state.suggestedPriceUsd !== "") {
+      return "USD: " + this.state.suggestedPriceUsd;
+    } else if (currency === "EUR" && this.state.suggestedPriceEur !== "") {
+      return "EUR: " + this.state.suggestedPriceEur;
+    } else if (currency === "PLN" && this.state.suggestedPricePln !== "") {
+      return "PLN: " + this.state.suggestedPricePln;
+    } else if (currency === "SEK" && this.state.suggestedPriceSek !== "") {
+      return "SEK: " + this.state.suggestedPriceSek;
+    } else if (currency === "ALL" && this.state.suggestedPriceAll !== "") {
+      return "ALL: " + this.state.suggestedPriceAll;
     }
   };
 
-  findProductByName(name) {
-    for (let product of this.state.products) {
-      if (product.product === name) {
-        return product;
-      }
-    }
-  }
-
-  calculateDefaultPrice = () => {
-    let suggestedPrice = 0
+  calculateSuggestedPriceForAllStates = () => {
+    let suggestedPrice = 0;
+    let suggestedTouristPrice = 0;
 
     for (let currentState of this.state.states) {
-      let currentProduct = this.findProductByName(this.state.chosenProduct)
+      let percentMargin = 10;
+      let touristPercentMargin = 20;
 
-      let taxCoefficient = this.getTaxCoef(currentState, currentProduct)
-      let logistics = parseFloat(currentState.logistics)
-      //procentowy zysk
-      let percentMargin = 10
-      let wholesalePrice = parseFloat(currentProduct.wholesalePrice)
+      let suggestedPriceBuffor = calculateSuggestedPrice(
+        this.state.chosenProduct,
+        this.state.products,
+        currentState,
+        percentMargin
+      );
+      let suggestedTouristPriceBuffor = calculateSuggestedPrice(
+        this.state.chosenProduct,
+        this.state.products,
+        currentState,
+        touristPercentMargin
+      );
 
-      let suggestedPriceBuffor = -((percentMargin+100)*(taxCoefficient+1)*(logistics+wholesalePrice))/(percentMargin*taxCoefficient - 100)
-      
-      if(suggestedPrice < suggestedPriceBuffor ) {
-        suggestedPrice = suggestedPriceBuffor
+      if (suggestedPrice < suggestedPriceBuffor) {
+        suggestedPrice = suggestedPriceBuffor;
       }
-    }
 
-    if(suggestedPrice%0.01<0.005) {
-      suggestedPrice = suggestedPrice + 0.005
+      if (suggestedTouristPrice < suggestedTouristPriceBuffor) {
+        suggestedTouristPrice = suggestedTouristPriceBuffor;
+      }
     }
 
     this.setState({
-      suggestedPrice: suggestedPrice.toFixed(2),
+      suggestedPriceUsd: suggestedPrice,
+      suggestedPricePln: (suggestedTouristPrice * this.state.rates.PLN).toFixed(
+        2
+      ),
+      suggestedPriceEur: (suggestedTouristPrice * this.state.rates.EUR).toFixed(
+        2
+      ),
+      suggestedPriceSek: (suggestedTouristPrice * this.state.rates.SEK).toFixed(
+        2
+      ),
+      suggestedPriceAll: (suggestedTouristPrice * this.state.rates.ALL).toFixed(
+        2
+      ),
     });
-  }
+  };
 
   onButtonClick = (e) => {
     if (
@@ -199,23 +238,15 @@ class PrototypeComponent extends React.Component {
       const newAnswers = [];
 
       for (let currentState of this.state.states) {
-        let stateName = currentState.name;
-        let currentProduct = this.findProductByName(this.state.chosenProduct);
-
-        let taxCoefficient = this.getTaxCoef(currentState, currentProduct) + 1;
-        let prizeWithoutTax = (
-          this.state.customerPrice / taxCoefficient
+        let calculatedData = calculateDataForProductInState(
+          currentState,
+          this.state.chosenProduct,
+          this.state.products,
+          this.state.customerPrice,
+          this.state.wholesalePrice
         );
-        let tax = (this.state.customerPrice - prizeWithoutTax).toFixed(2);
-        let margin = (prizeWithoutTax - this.state.wholesalePrice).toFixed(2);
 
-        //Uwzgledniamy koszty logistyki
-        margin = (margin - currentState.logistics).toFixed(2);
-
-        let percentMargin = (parseFloat(margin) / (parseFloat(currentProduct.wholesalePrice) + parseFloat(tax) + parseFloat(currentState.logistics) ) ) * 100.0
-        percentMargin = percentMargin.toFixed(2)
-
-        newAnswers.push(this.createData(stateName, tax, currentState.logistics, percentMargin, margin));
+        newAnswers.push(calculatedData);
       }
 
       newAnswers.sort((a, b) => (a.margin < b.margin ? 1 : -1));
@@ -249,7 +280,12 @@ class PrototypeComponent extends React.Component {
                     variant="outlined"
                     className={classes.gridElement}
                   >
-                    <InputLabel className={classes.selectLabel}  id="product-category-select-label">Product category</InputLabel>
+                    <InputLabel
+                      className={classes.selectLabel}
+                      id="product-category-select-label"
+                    >
+                      Product category
+                    </InputLabel>
                     <Select
                       className={classes.selectCategory}
                       variant="outlined"
@@ -261,8 +297,12 @@ class PrototypeComponent extends React.Component {
                     >
                       <MenuItem value={"groceries"}>Groceries</MenuItem>
                       <MenuItem value={"preparedFood"}>Prepared Food</MenuItem>
-                      <MenuItem value={"prescriptionDrug"}>Prescription Drug</MenuItem>
-                      <MenuItem value={"nonPrescriptionDrug"}>Non Prescription Drug</MenuItem>
+                      <MenuItem value={"prescriptionDrug"}>
+                        Prescription Drug
+                      </MenuItem>
+                      <MenuItem value={"nonPrescriptionDrug"}>
+                        Non Prescription Drug
+                      </MenuItem>
                       <MenuItem value={"clothing"}>Clothing</MenuItem>
                       <MenuItem value={"intangibles"}>Intangibles</MenuItem>
                     </Select>
@@ -298,12 +338,6 @@ class PrototypeComponent extends React.Component {
                       Oblicz
                     </Button>
 
-
-
-                    <Typography gutterBottom variant="h5" component="h3">
-                        Suggested price: {this.state.suggestedPrice}
-                    </Typography>
-
                     {this.state.chosenProduct != null ? (
                       <Typography gutterBottom variant="h5" component="h3">
                         Chosen product: {this.state.chosenProduct}
@@ -313,9 +347,39 @@ class PrototypeComponent extends React.Component {
                         Choose product
                       </Typography>
                     )}
+
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      component="h3"
+                    ></Typography>
+
+                    <Typography gutterBottom variant="h5" component="h3">
+                      Suggested price:
+                    </Typography>
+
+                    <Typography gutterBottom variant="h5" component="h3">
+                      {this.printPrice("USD")}
+                    </Typography>
+
+                    <Typography gutterBottom variant="h5" component="h3">
+                      Suggested prices for tourists:
+                    </Typography>
+
+                    <Typography gutterBottom variant="h5" component="h3">
+                      {this.printPrice("EUR")} {this.printPrice("PLN")}
+                    </Typography>
+
+                    <Typography gutterBottom variant="h5" component="h3">
+                      {this.printPrice("SEK")} {this.printPrice("ALL")}
+                    </Typography>
                   </FormControl>
                   <Container maxWidth="md">
-                    <Grid className={classes.cardContainer} container spacing={4}>
+                    <Grid
+                      className={classes.cardContainer}
+                      container
+                      spacing={4}
+                    >
                       {this.state.filteredProducts.map((item) => (
                         <Grid item key={item.product} xs={12} sm={6} md={5}>
                           <ButtonBase
@@ -329,7 +393,7 @@ class PrototypeComponent extends React.Component {
                             <Card className={classes.card}>
                               <CardMedia
                                 className={classes.cardMedia}
-                                image={item.imagesrc}
+                                image={item.src_image}
                                 title="Image title"
                               />
                               <CardContent>
@@ -341,8 +405,7 @@ class PrototypeComponent extends React.Component {
                                   {item.product}
                                 </Typography>
                               </CardContent>
-                              <CardActions>
-                              </CardActions>
+                              <CardActions></CardActions>
                             </Card>
                           </ButtonBase>
                         </Grid>
@@ -364,7 +427,7 @@ class PrototypeComponent extends React.Component {
                       <TableCell align="right">Tax</TableCell>
                       <TableCell align="right">Logistics</TableCell>
                       <TableCell align="right">% Margin</TableCell>
-                      <TableCell align="right">Marign</TableCell>
+                      <TableCell align="right">Margin</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -376,10 +439,10 @@ class PrototypeComponent extends React.Component {
                         <TableCell align="right">{row.tax}</TableCell>
                         <TableCell align="right">{row.logistics}</TableCell>
                         <TableCell align="right">
-                          {this.formatColor(row.percentMargin, '%')}
+                          {this.formatColor(row.percentMargin, "%")}
                         </TableCell>
                         <TableCell align="right">
-                          {this.formatColor(row.margin, '')}
+                          {this.formatColor(row.margin, "")}
                         </TableCell>
                       </TableRow>
                     ))}
